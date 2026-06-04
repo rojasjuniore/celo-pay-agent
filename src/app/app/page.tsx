@@ -5,15 +5,11 @@ import { useChat } from "@ai-sdk/react";
 import { useActiveAccount } from "thirdweb/react";
 import { buildAuthMessage } from "@/modules/payments/auth-message";
 import { WelcomeState } from "@/components/chat/WelcomeState";
-import { AgentLivePanel } from "@/components/chat/AgentLivePanel";
 import { ConfirmationCard } from "@/components/chat/ConfirmationCard";
 import { PaymentGate } from "@/components/chat/PaymentGate";
 import { usePaymentGate } from "@/components/auth/usePaymentGate";
-import type {
-  AgentIdentity,
-  AgentActivity,
-  PaymentConfirmation,
-} from "@/components/chat/types";
+import { BalanceCard, DepositCard, ActivityList } from "@/components/dashboard/DashboardCards";
+import type { PaymentConfirmation } from "@/components/chat/types";
 
 /** Instante actual (fuera del render: lo usa el handler de ejecución). */
 function nowMs(): number {
@@ -32,10 +28,6 @@ export default function AppPage() {
   const gate = usePaymentGate();
   // Pago pendiente de ejecutar tras pasar el gate (login + KYC).
   const [pending, setPending] = useState<PaymentConfirmation | null>(null);
-
-  // Hasta cablear el feed real desde la DB/onchain, no inventamos datos.
-  const identity: AgentIdentity | null = null;
-  const activity: AgentActivity | null = null;
 
   const submit = (text: string) => {
     const value = text.trim();
@@ -198,8 +190,15 @@ export default function AppPage() {
         </div>
       </main>
 
-      {/* Panel live */}
-      <AgentLivePanel identity={identity} activity={activity} />
+      {/* Panel live: datos reales onchain (balance, depósito, actividad) */}
+      <aside
+        className="w-80 shrink-0 border-l p-4 space-y-4 overflow-y-auto hidden lg:block"
+        style={{ borderColor: "var(--cb-hairline)", background: "var(--cb-surface-soft)" }}
+      >
+        <BalanceCard />
+        <DepositCard address={account?.address as `0x${string}` | undefined} />
+        <ActivityList />
+      </aside>
 
       {/* Gate just-in-time: login + KYC, solo al confirmar un pago */}
       {pending && (
