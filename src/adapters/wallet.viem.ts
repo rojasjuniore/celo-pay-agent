@@ -24,9 +24,11 @@ export class ViemWalletAdapter implements WalletPort {
   private readonly account: ReturnType<typeof privateKeyToAccount>;
 
   constructor() {
-    const pk = requireEnv("AGENT_PRIVATE_KEY");
+    const raw = requireEnv("AGENT_PRIVATE_KEY").trim();
     const rpc = requireEnv("CELO_RPC_URL");
-    this.account = privateKeyToAccount(pk as `0x${string}`);
+    // viem exige la private key con prefijo 0x; la aceptamos con o sin él.
+    const pk = (raw.startsWith("0x") ? raw : `0x${raw}`) as `0x${string}`;
+    this.account = privateKeyToAccount(pk);
     this.clients = makeClients(rpc, this.account);
   }
 
