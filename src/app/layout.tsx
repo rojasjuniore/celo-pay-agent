@@ -9,9 +9,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "celo-pay-agent",
+  title: "Remi — envía dinero hablando, gasless en Celo",
   description:
-    "Agente de pagos en chat sobre Celo: remesas USDT → COP, gasless, ERC-8004.",
+    "Remi es un agente de IA que ejecuta remesas reales en Celo: gasless, sin tocar cripto, liquidado en moneda local. ERC-8004 · x402 · Self.",
 };
 
 export default function RootLayout({

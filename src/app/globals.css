@@ -22,6 +22,25 @@
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-full: 9999px;
+
+  /* Tokens Coinbase (landing) — de DESIGN.md. Namespace cb- para no chocar. */
+  --cb-primary: #0052ff;
+  --cb-primary-active: #003ecc;
+  --cb-ink: #0a0b0d;
+  --cb-body: #5b616e;
+  --cb-muted: #7c828a;
+  --cb-hairline: #dee1e6;
+  --cb-canvas: #ffffff;
+  --cb-surface-soft: #f7f7f7;
+  --cb-surface-strong: #eef0f3;
+  --cb-surface-dark: #0a0b0d;
+  --cb-surface-dark-elevated: #16181c;
+  --cb-on-dark: #ffffff;
+  --cb-on-dark-soft: #a8acb3;
+  --cb-up: #05b169;
+  --cb-celo: #fcff52;
+  --cb-radius-pill: 100px;
+  --cb-radius-xl: 24px;
 }
 
 @theme inline {
