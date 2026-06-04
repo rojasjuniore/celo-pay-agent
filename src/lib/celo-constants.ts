@@ -24,26 +24,6 @@ export const USDM: `0x${string}` =
 export const USDT: `0x${string}` =
   "0x48065fbBE25f71C9282ddf5e1cD6D6A887483D5e";
 
-/** cCOP / COPm — Celo Colombian Peso (Mento). VERIFICADO. Off-ramp a COP. */
-export const CCOP: `0x${string}` =
-  "0x8A567e2aE79CA692Bd748aB832081C45de4041eA";
-
-/**
- * Mento Broker (contrato de swap entre stablecoins de Mento). NO verificado en
- * esta sesión: no hardcodeamos una dirección inventada. Debe inyectarse vía la
- * env var MENTO_BROKER_ADDRESS tras confirmarla en docs/registro de Mento.
- */
-export function getMentoBroker(source: EnvSource = process.env): `0x${string}` {
-  const addr = source.MENTO_BROKER_ADDRESS;
-  if (!addr || !/^0x[0-9a-fA-F]{40}$/.test(addr)) {
-    throw new Error(
-      "Mento Broker address not configured; set MENTO_BROKER_ADDRESS (verify it first). / " +
-        "Dirección del Mento Broker no configurada; define MENTO_BROKER_ADDRESS (verifícala antes).",
-    );
-  }
-  return addr as `0x${string}`;
-}
-
 /** feeCurrency adapter para USDC. VERIFICADO. */
 export const FEE_CURRENCY_USDC: `0x${string}` =
   "0x2F25deB3848C207fc8E0c34035B3Ba7fC157602B";

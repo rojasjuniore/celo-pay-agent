@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "register-agent": "tsx scripts/register-agent.ts"
+    "register-agent": "tsx scripts/register-agent.ts",
+    "check-noah": "tsx scripts/check-noah-celo.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.67",

@@ -25,8 +25,8 @@ const EnvSchema = z.object({
   SELF_APP_ID: z.string().optional(),
   TREASURY_ADDRESS: z.string().optional(),
   REVENUE_FEE_BPS: z.string().optional(),
-  MENTO_BROKER_ADDRESS: z.string().optional(),
-  // Off-ramp global (Noah). Producción usa API key + request signing (ES384).
+  // Off-ramp global (Noah). El agente envía USDT directo en Celo a esta address.
+  NOAH_DEPOSIT_ADDRESS: z.string().optional(),
   NOAH_API_KEY: z.string().optional(),
   NOAH_SIGNING_PRIVATE_KEY: z.string().optional(),
   NOAH_API_BASE: z.string().optional(),

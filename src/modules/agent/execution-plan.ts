@@ -9,7 +9,7 @@ import { isCountrySupported } from "@/modules/ramp/local-currency";
  */
 
 export interface PlannedStep {
-  key: "fee" | "quote" | "swap" | "offramp";
+  key: "fee" | "quote" | "transfer" | "offramp";
   label: string;
 }
 
@@ -21,10 +21,10 @@ export interface ExecutionPlan {
 }
 
 const STEP_LABELS: Record<PlannedStep["key"], string> = {
-  fee: "Cobro de fee de servicio (USDT)",
+  fee: "Cobro de fee de servicio (USDT, Celo)",
   quote: "Quote de FX (x402)",
-  swap: "Swap USDT → cCOP (Mento, en Celo)",
-  offramp: "Off-ramp cCOP → COP",
+  transfer: "Transfer USDT → Noah (deposit en Celo)",
+  offramp: "Liquidación Noah → moneda local",
 };
 
 /** Construye el plan a partir del intent y los bps del fee del entorno. */
@@ -36,9 +36,10 @@ export function buildExecutionPlan(
   const micro = BigInt(Math.round(intent.amountUsd * 1_000_000));
   const { fee, net } = computeFee(micro, feeBps);
 
-  // Off-ramp global: si Noah tiene corredor para el país, se hace swap+offramp.
+  // Si Noah tiene corredor para el país: transfer USDT a Noah + off-ramp.
+  // Todo el onchain es un transfer de USDT en Celo (sin swap ni bridge).
   const keys: PlannedStep["key"][] = isCountrySupported(intent.country)
-    ? ["fee", "quote", "swap", "offramp"]
+    ? ["fee", "quote", "transfer", "offramp"]
     : ["fee", "quote"];
 
   return {

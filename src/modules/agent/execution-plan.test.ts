@@ -17,9 +17,9 @@ describe("buildExecutionPlan", () => {
     expect(plan.netUsd).toBeCloseTo(49.75, 6);
   });
 
-  it("para Colombia incluye swap a cCOP y off-ramp (todo en Celo, sin bridge)", () => {
+  it("incluye transfer a Noah y off-ramp (USDT directo en Celo, sin swap)", () => {
     const keys = buildExecutionPlan(coIntent, 50).steps.map((s) => s.key);
-    expect(keys).toEqual(["fee", "quote", "swap", "offramp"]);
+    expect(keys).toEqual(["fee", "quote", "transfer", "offramp"]);
   });
 
   it("respeta bps configurable", () => {

@@ -2,8 +2,9 @@
 
 Agente de pagos en chat sobre **Celo**: hablas en lenguaje natural (ES/EN) y el agente paga en
 **USDT gasless** (gas pagado en el propio stablecoin vía fee abstraction CIP-64), registrado en
-**ERC-8004**, con remesas reales a moneda local. El onchain ocurre **todo en Celo** (swap USDT→cCOP
-vía Mento, sin bridges) y el off-ramp es **global vía Noah** (120+ monedas; Colombia es el demo).
+**ERC-8004**, con remesas reales a moneda local. El onchain ocurre **todo en Celo**: el agente envía
+USDT directo a la deposit address de Noah en Celo (sin swap ni bridge), y Noah liquida a la moneda
+local del destinatario — **off-ramp global** (120+ monedas; Colombia es el demo).
 
 Proyecto para el **Onchain Agents Hackathon** de Celo (22 may – 15 jun 2026).
 
@@ -20,8 +21,7 @@ Proyecto para el **Onchain Agents Hackathon** de Celo (22 may – 15 jun 2026).
 | Pagos | thirdweb x402 |
 | Identidad | ERC-8004 (ABI oficial) → 8004scan |
 | Verificación | Self Agent ID (anti-sybil) |
-| Swap | **Mento cCOP en Celo** (USDT→cCOP, onchain) |
-| Off-ramp | **Noah — global (120+ monedas, corredor por país)** |
+| Off-ramp | **Noah — global (120+ monedas), USDT directo en Celo** |
 | Monetización | Fee de servicio real, configurable, cobrado onchain |
 | Persistencia | Drizzle + Neon Postgres |
 | Tests | Vitest (TDD) |
@@ -33,7 +33,7 @@ Proyecto para el **Onchain Agents Hackathon** de Celo (22 may – 15 jun 2026).
 Usuario (ES/EN) → Claude (OpenRouter) → PaymentIntent (Zod)
   → policy ($/tx) → fee de servicio (transparente) → confirmación
   → ejecución gasless en Celo:
-     fee → tesorería · x402 quote · swap USDT→cCOP (Mento) · off-ramp cCOP→COP
+     fee → tesorería · x402 quote · transfer USDT → Noah (Celo) · Noah liquida → moneda local
   → recibo con links a Celoscan + 8004scan
   → si recurrente: cron lo re-ejecuta (actividad consistente)
 ```
@@ -50,7 +50,7 @@ Ports & adapters — el dominio es puro y testeable; el I/O (blockchain, LLM, DB
 src/
 ├─ modules/{agent,wallet,payments,identity,verify,ramp,revenue,scheduler}/   # dominio puro
 ├─ ports/        # interfaces (Wallet, Payment, Identity, LLM, Ramp, Revenue, Verify)
-├─ adapters/     # impls (viem, thirdweb, erc8004, openrouter, mento, treasury, self)
+├─ adapters/     # impls (viem, thirdweb, erc8004, openrouter, noah, treasury, self)
 ├─ components/chat/   # UI tipada (DESIGN.md + acento Celo)
 ├─ lib/          # env (Zod), celo-constants, db, design-tokens
 └─ app/api/{chat,x402/quote,cron/execute}/                        # endpoints
@@ -75,10 +75,10 @@ npm run dev                  # http://localhost:3000
 ## Datos onchain (Celo Mainnet)
 
 - ERC-8004 Identity: `0x8004A169FB4a3325136EB29fA0ceB6D2e539a432`
-- USDT: `0x48065fbBE25f71C9282ddf5e1cD6D6A887483D5e`
-- cCOP (Mento): `0x8A567e2aE79CA692Bd748aB832081C45de4041eA`
+- USDT (Celo): `0x48065fbBE25f71C9282ddf5e1cD6D6A887483D5e`
 - feeCurrency adapter USDC (verificado): `0x2F25deB3848C207fc8E0c34035B3Ba7fC157602B`
-- ⚠️ Mento Broker y feeCurrency-USDT: configurar/verificar antes de mover dinero (ver `.env.example`).
+- Noah deposit address (Celo): se configura en `NOAH_DEPOSIT_ADDRESS` (ver `.env.example`).
+- ⚠️ feeCurrency-USDT: verificar onchain antes de usarlo como fee currency.
 
 ## Estado
 
@@ -88,7 +88,7 @@ npm run dev                  # http://localhost:3000
 - [x] PaymentPort x402 (thirdweb)
 - [x] LLMPort + chat streaming (AI SDK v6)
 - [x] DB Drizzle/Neon + cron autónomo
-- [x] RampPort cCOP (Mento) + RevenuePort (fee real) — todo en Celo
+- [x] RampPort Noah (off-ramp global, USDT directo en Celo) + RevenuePort (fee real)
 - [x] VerifyPort Self Agent ID
 - [x] UI chat 3 zonas (DESIGN.md) · build de producción OK
 - [ ] Cableado E2E del flujo de ejecución en la UI (tool calls) + feed de actividad real

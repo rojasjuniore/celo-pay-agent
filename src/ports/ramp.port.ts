@@ -1,16 +1,11 @@
 /**
- * RampPort — conversión a moneda local dentro de Celo + off-ramp GLOBAL.
- * Swap USDT → cCOP (Mento) onchain en Celo, y off-ramp a moneda local vía Noah
- * (el corredor lo resuelve el país, 120+ monedas). Todo el onchain ocurre en Celo.
+ * RampPort — off-ramp GLOBAL a moneda local vía Noah. El agente envía USDT
+ * directo en Celo a la deposit address de Noah; Noah liquida a la moneda local
+ * del país destino (120+ monedas, corredor por país). No hay swap ni bridge:
+ * todo el onchain es un transfer de USDT en Celo.
  */
-export interface SwapResult {
-  txHash: `0x${string}`;
-  /** cCOP recibido (unidad mínima). */
-  amountOut: bigint;
-}
-
 export interface OffRampResult {
-  /** Referencia del payout (proveedor de off-ramp). */
+  /** Referencia del payout en Noah. */
   reference: string;
   status: "initiated" | "settled" | "failed";
   /** Moneda local entregada (ISO-4217). */
@@ -27,8 +22,8 @@ export interface OffRampInput {
 }
 
 export interface RampPort {
-  /** Swap USDT → cCOP en Celo vía Mento. */
-  swapToLocal(amountUsdt: bigint): Promise<SwapResult>;
+  /** Deposit address de Noah en Celo: donde el agente envía el USDT. */
+  depositAddress(): `0x${string}`;
   /** Off-ramp a moneda local (global, vía Noah). */
   offRamp(input: OffRampInput): Promise<OffRampResult>;
 }

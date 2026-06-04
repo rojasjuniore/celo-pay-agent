@@ -17,7 +17,7 @@ export async function GET(request: Request): Promise<Response> {
 
   if (result.status === 200) {
     // Pago liquidado: sirve el quote real (tasa la provee el bridge/off-ramp).
-    return Response.json({ pair: "USD/COP", source: "mento+lifi" });
+    return Response.json({ pair: "USD/local", source: "noah" });
   }
   return Response.json(result.responseBody, {
     status: result.status,

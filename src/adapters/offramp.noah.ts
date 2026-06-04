@@ -1,4 +1,5 @@
-import { SignJWT, importPKCS8 } from "jose";
+import { createPrivateKey } from "node:crypto";
+import { SignJWT } from "jose";
 import { requireEnv, getEnv } from "@/lib/env";
 import { currencyForCountry } from "@/modules/ramp/local-currency";
 
@@ -13,7 +14,7 @@ import { currencyForCountry } from "@/modules/ramp/local-currency";
  *
  * Falla fuerte sin credenciales. No simula payouts.
  */
-const DEFAULT_BASE = "https://business.noah.com";
+const DEFAULT_BASE = "https://api.noah.com";
 
 export interface NoahPayoutInput {
   /** Monto en la moneda fiat local (ej. COP). */
@@ -37,13 +38,22 @@ export class NoahOffRampAdapter {
     return getEnv().NOAH_API_BASE ?? DEFAULT_BASE;
   }
 
-  /** Firma el cuerpo de la request como JWT ES384 (Api-Signature). */
+  /**
+   * Firma el cuerpo como JWT ES384 (header Api-Signature).
+   * La clave de Noah viene en formato EC SEC1 (`BEGIN EC PRIVATE KEY`);
+   * createPrivateKey de Node lo acepta (jose's importPKCS8 no).
+   *
+   * UNCONFIRMED: la forma exacta del claim que Noah espera (¿hash del body?,
+   * ¿aud?, ¿nonce?). Se ajusta al confirmar el contrato con la consulta a la API.
+   */
   private async sign(payload: object): Promise<string> {
-    const pem = requireEnv("NOAH_SIGNING_PRIVATE_KEY");
-    const key = await importPKCS8(pem, "ES384");
+    const pem = requireEnv("NOAH_SIGNING_PRIVATE_KEY").replace(/\\n/g, "\n");
+    const key = createPrivateKey({ key: pem, format: "pem" });
+    const audience = getEnv().NOAH_API_BASE ?? DEFAULT_BASE;
     return new SignJWT({ body: payload })
       .setProtectedHeader({ alg: "ES384" })
       .setIssuedAt()
+      .setAudience(audience)
       .sign(key);
   }
 
