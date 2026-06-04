@@ -146,6 +146,20 @@ npm run build        # build de producción
 > ⚠️ El adapter `feeCurrency` de USDT y el contrato exacto de la API de Noah deben verificarse antes
 > de mover dinero real — el código falla fuerte hasta confirmarlos (nada hardcodeado a ciegas).
 
+### Noah: sandbox vs producción
+
+El off-ramp tiene dos entornos, intercambiables con **una sola variable** (`NOAH_API_BASE`):
+
+| Entorno | Uso | Onboarding |
+|---|---|---|
+| **Sandbox** | Demo y video del hackatón — flujo completo sin liquidar fiat real | Ninguno (registro autogestionado) |
+| **Producción** (`https://api.noah.com`) | Liquidar a moneda local de verdad | KYC/KYB + contrato (vía VelaFi para LATAM) |
+
+El **onchain en Celo es siempre real** (registro ERC-8004, transfers, x402, fee) — eso es lo que
+puntúan los tracks. El off-ramp a fiat es el último paso, fuera de la cadena: para el demo va por
+**sandbox** (sin esperar el onboarding de prod), y el código queda **listo para prod** cambiando solo
+`NOAH_API_BASE`.
+
 ## Estado
 
 **Listo:**
