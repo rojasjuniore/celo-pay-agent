@@ -23,6 +23,9 @@ const EnvSchema = z.object({
   PINATA_JWT: z.string().optional(),
   DATABASE_URL: z.string().optional(),
   SELF_APP_ID: z.string().optional(),
+  // Self Protocol (KYC ZK passport): scope + endpoint público del verifier.
+  SELF_SCOPE: z.string().optional(),
+  SELF_ENDPOINT: z.string().optional(),
   TREASURY_ADDRESS: z.string().optional(),
   REVENUE_FEE_BPS: z.string().optional(),
   // Off-ramp global (Noah). El agente envía USDT directo en Celo a esta address.
