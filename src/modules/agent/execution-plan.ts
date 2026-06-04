@@ -1,5 +1,6 @@
 import type { PaymentIntent } from "./payment-intent";
 import { computeFee, getFeeBps } from "@/modules/revenue/fee";
+import { isCountrySupported } from "@/modules/ramp/local-currency";
 
 /**
  * Plan de ejecución de un pago: la secuencia de pasos onchain que el agente
@@ -35,10 +36,10 @@ export function buildExecutionPlan(
   const micro = BigInt(Math.round(intent.amountUsd * 1_000_000));
   const { fee, net } = computeFee(micro, feeBps);
 
-  const keys: PlannedStep["key"][] =
-    intent.country === "CO"
-      ? ["fee", "quote", "swap", "offramp"]
-      : ["fee", "quote"];
+  // Off-ramp global: si Noah tiene corredor para el país, se hace swap+offramp.
+  const keys: PlannedStep["key"][] = isCountrySupported(intent.country)
+    ? ["fee", "quote", "swap", "offramp"]
+    : ["fee", "quote"];
 
   return {
     feeUsd: Number(fee) / 1_000_000,

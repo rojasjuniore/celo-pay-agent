@@ -2,7 +2,8 @@
 
 Agente de pagos en chat sobre **Celo**: hablas en lenguaje natural (ES/EN) y el agente paga en
 **USDT gasless** (gas pagado en el propio stablecoin vía fee abstraction CIP-64), registrado en
-**ERC-8004**, con utilidad real de remesas **USDT → COP** — **todo dentro de Celo, sin bridges**.
+**ERC-8004**, con remesas reales a moneda local. El onchain ocurre **todo en Celo** (swap USDT→cCOP
+vía Mento, sin bridges) y el off-ramp es **global vía Noah** (120+ monedas; Colombia es el demo).
 
 Proyecto para el **Onchain Agents Hackathon** de Celo (22 may – 15 jun 2026).
 
@@ -19,7 +20,8 @@ Proyecto para el **Onchain Agents Hackathon** de Celo (22 may – 15 jun 2026).
 | Pagos | thirdweb x402 |
 | Identidad | ERC-8004 (ABI oficial) → 8004scan |
 | Verificación | Self Agent ID (anti-sybil) |
-| Off-ramp | **Mento cCOP (swap + payout, todo en Celo)** |
+| Swap | **Mento cCOP en Celo** (USDT→cCOP, onchain) |
+| Off-ramp | **Noah — global (120+ monedas, corredor por país)** |
 | Monetización | Fee de servicio real, configurable, cobrado onchain |
 | Persistencia | Drizzle + Neon Postgres |
 | Tests | Vitest (TDD) |

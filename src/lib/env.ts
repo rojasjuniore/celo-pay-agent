@@ -26,7 +26,10 @@ const EnvSchema = z.object({
   TREASURY_ADDRESS: z.string().optional(),
   REVENUE_FEE_BPS: z.string().optional(),
   MENTO_BROKER_ADDRESS: z.string().optional(),
-  OFFRAMP_API_KEY: z.string().optional(),
+  // Off-ramp global (Noah). Producción usa API key + request signing (ES384).
+  NOAH_API_KEY: z.string().optional(),
+  NOAH_SIGNING_PRIVATE_KEY: z.string().optional(),
+  NOAH_API_BASE: z.string().optional(),
   CRON_SECRET: z.string().optional(),
   AGENT_PUBLIC_URL: z.string().optional(),
 });
