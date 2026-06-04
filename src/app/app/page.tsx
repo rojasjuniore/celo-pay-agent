@@ -36,6 +36,33 @@ export default function AppPage() {
     setInput("");
   };
 
+  // Ejecuta el pago de verdad (tx reales en Celo) vía /api/execute, y reporta
+  // el resultado en el chat con el hash. Sin simulación.
+  const execute = async (data: PaymentConfirmation) => {
+    sendMessage({ text: "Executing payment on Celo…" });
+    try {
+      const res = await fetch("/api/execute", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ intent: data }),
+      });
+      const receipt = (await res.json()) as {
+        completed: boolean;
+        transferHash?: string;
+        offRampRef?: string;
+      };
+      if (receipt.completed) {
+        sendMessage({
+          text: `Sent. Tx: ${receipt.transferHash ?? "—"}${receipt.offRampRef ? ` · payout ${receipt.offRampRef}` : ""}`,
+        });
+      } else {
+        sendMessage({ text: "Payment could not complete. Check your balance and try again." });
+      }
+    } catch {
+      sendMessage({ text: "Execution error. Please try again." });
+    }
+  };
+
   return (
     <div className="flex h-screen" style={{ background: "var(--color-surface-muted)" }}>
       {/* Sidebar */}
@@ -101,8 +128,8 @@ export default function AppPage() {
                             data={data}
                             onConfirm={() => {
                               // Gate just-in-time: si falta login/KYC, lo pide
-                              // ahora (PaymentGate); si ya está, ejecuta.
-                              if (gate.ready) submit("Confirm the payment");
+                              // ahora (PaymentGate); si ya está, ejecuta de verdad.
+                              if (gate.ready) void execute(data);
                               else setPending(data);
                             }}
                             onEdit={() => submit("I want to change the payment")}
@@ -159,8 +186,9 @@ export default function AppPage() {
         <PaymentGate
           gate={gate}
           onReady={() => {
+            const intent = pending;
             setPending(null);
-            submit("Confirm the payment");
+            void execute(intent);
           }}
           onCancel={() => setPending(null)}
         />
