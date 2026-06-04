@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# celo-pay-agent 🟡
 
-## Getting Started
+Agente de pagos en chat sobre **Celo**: hablas en lenguaje natural (ES/EN) y el agente paga en
+**USDT gasless** (gas pagado en el propio stablecoin vía fee abstraction), registrado en
+**ERC-8004**, con utilidad real de remesas **USDT → COP**.
 
-First, run the development server:
+Proyecto para el **Onchain Agents Hackathon** de Celo (22 may – 15 jun 2026).
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+> **Estrategia:** un agente que compite en los 3 tracks — Best Agent (utilidad real),
+> Most Activity (tx onchain consistentes) y Highest Rank en 8004scan (identidad ERC-8004).
+
+## Stack
+
+| Capa | Tech |
+|---|---|
+| UI / Chat | Next.js 16 (App Router) + Vercel AI SDK |
+| Cerebro | OpenRouter → Claude Sonnet 4.6 (bilingüe ES/EN) |
+| Wallet + gasless | viem + `feeCurrency` (CIP-64) |
+| Pagos | thirdweb x402 |
+| Identidad | ERC-8004 (`@chaoschain/sdk`) → 8004scan |
+| Verificación | Self Agent ID (anti-sybil) |
+| Bridge | Li.Fi (Celo → Polygon) |
+| Off-ramp | Mento cCOP |
+| Persistencia | Drizzle + Neon Postgres |
+| Tests | Vitest (TDD) |
+| Scheduler | Vercel Cron |
+
+## Arquitectura
+
+Ports & adapters — el dominio es puro y testeable; el I/O (blockchain, LLM, DB) vive en los bordes.
+
+```
+src/
+├─ modules/{agent,wallet,payments,identity,verify,bridge,ramp}/   # dominio
+├─ ports/        # interfaces
+├─ adapters/     # impls concretas (viem, thirdweb, chaoschain, lifi, mento)
+├─ lib/          # config, db, llm, env (Zod), design-tokens
+└─ app/api/{chat,x402/quote,cron/execute}/                        # endpoints
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Desarrollo
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+cp .env.example .env.local   # completar con credenciales reales
+npm run test                 # Vitest
+npm run dev                  # http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**TDD:** Red → Green → Refactor. `npm run test && npm run typecheck && npm run lint` antes de cada commit.
 
-## Learn More
+## Estado
 
-To learn more about Next.js, take a look at the following resources:
+- [x] Día 0 — Scaffold + dominio bilingüe `parseIntent` (8 tests verdes) + arquitectura de puertos
+- [ ] Día 1 — WalletPort: transfer USDT gasless (`feeCurrency`)
+- [ ] Día 2 — ERC-8004 register → visible en 8004scan
+- [ ] Día 3 — x402 (server + cliente)
+- [ ] Día 4 — Chat OpenRouter → PaymentIntent
+- [ ] Día 5 — Cron executor (autonomía → volumen)
+- [ ] … (ver `CLAUDE.md` para el plan completo)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Licencia
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
