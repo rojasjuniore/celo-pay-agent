@@ -56,8 +56,9 @@ export function PaymentGate({
             endpoint={selfEndpoint}
             scope={selfScope}
             onVerified={() => {
-              // El backend marcará kycVerified; el hook lo detecta y dispara onReady.
-              fetch(`/api/account/${gate.address}/verified`, { method: "POST" }).catch(() => {});
+              // No marcamos nada desde el cliente (sería un bypass de KYC). El
+              // QR apunta a /api/self/verify, que valida el ZK proof y persiste
+              // kycVerified server-side. usePaymentGate lo detecta por polling.
             }}
           />
         )}

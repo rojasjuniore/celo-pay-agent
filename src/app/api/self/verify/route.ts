@@ -3,7 +3,9 @@ import {
   DefaultConfigStore,
   AllIds,
 } from "@selfxyz/core";
+import { sql } from "drizzle-orm";
 import { requireEnv } from "@/lib/env";
+import { getDb, schema } from "@/lib/db";
 
 /**
  * Endpoint de verificación de Self (KYC ZK passport). La app Self envía aquí el
@@ -57,10 +59,25 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
 
-  // Verificado: el userIdentifier queda asociado (lo persiste la capa de cuenta).
+  // SOLO aquí, tras validar el ZK proof real, se marca el KYC en la DB. Esta es
+  // la ÚNICA fuente de verdad del KYC (no hay endpoint que el cliente pueda
+  // llamar para auto-marcarse verificado). El userIdentifier es la wallet (hex).
+  const userIdentifier = result.userData.userIdentifier;
+  if (/^0x[0-9a-fA-F]{40}$/.test(userIdentifier)) {
+    const db = getDb();
+    const w = userIdentifier.toLowerCase();
+    await db
+      .insert(schema.accounts)
+      .values({ wallet: w, kycVerified: new Date(), selfId: userIdentifier })
+      .onConflictDoUpdate({
+        target: schema.accounts.wallet,
+        set: { kycVerified: new Date(), selfId: userIdentifier, updatedAt: sql`now()` },
+      });
+  }
+
   return Response.json({
     status: "success",
-    userIdentifier: result.userData.userIdentifier,
+    userIdentifier,
     nationality: result.discloseOutput?.nationality,
   });
 }
