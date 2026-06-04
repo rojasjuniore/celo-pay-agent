@@ -4,7 +4,12 @@ import { useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { WelcomeState } from "@/components/chat/WelcomeState";
 import { AgentLivePanel } from "@/components/chat/AgentLivePanel";
-import type { AgentIdentity, AgentActivity } from "@/components/chat/types";
+import { ConfirmationCard } from "@/components/chat/ConfirmationCard";
+import type {
+  AgentIdentity,
+  AgentActivity,
+  PaymentConfirmation,
+} from "@/components/chat/types";
 
 /**
  * UI del agente (estilo ChatGPT, 3 zonas): sidebar · chat · panel live.
@@ -66,9 +71,36 @@ export default function Home() {
                       border: m.role === "user" ? "none" : "1px solid var(--color-border)",
                     }}
                   >
-                    {m.parts.map((p, i) =>
-                      p.type === "text" ? <span key={i}>{p.text}</span> : null,
-                    )}
+                    {m.parts.map((p, i) => {
+                      if (p.type === "text") return <span key={i}>{p.text}</span>;
+                      // Tool call: el agente propone un pago → tarjeta de confirmación.
+                      if (
+                        p.type === "tool-proposePayment" &&
+                        p.state === "output-available"
+                      ) {
+                        const o = p.output as {
+                          intent: PaymentConfirmation;
+                          feeUsd: number;
+                          netUsd: number;
+                          feeBps: number;
+                        };
+                        const data: PaymentConfirmation = {
+                          ...o.intent,
+                          feeUsd: o.feeUsd,
+                          netUsd: o.netUsd,
+                          feeBps: o.feeBps,
+                        };
+                        return (
+                          <ConfirmationCard
+                            key={i}
+                            data={data}
+                            onConfirm={() => submit("Confirmo el pago")}
+                            onEdit={() => submit("Quiero cambiar el pago")}
+                          />
+                        );
+                      }
+                      return null;
+                    })}
                   </div>
                 </div>
               ))
