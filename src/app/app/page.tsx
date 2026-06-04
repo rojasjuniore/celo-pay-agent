@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useChat } from "@ai-sdk/react";
+import { useActiveAccount } from "thirdweb/react";
+import { buildAuthMessage } from "@/modules/payments/auth-message";
 import { WelcomeState } from "@/components/chat/WelcomeState";
 import { AgentLivePanel } from "@/components/chat/AgentLivePanel";
 import { ConfirmationCard } from "@/components/chat/ConfirmationCard";
@@ -13,6 +15,11 @@ import type {
   PaymentConfirmation,
 } from "@/components/chat/types";
 
+/** Instante actual (fuera del render: lo usa el handler de ejecución). */
+function nowMs(): number {
+  return Date.now();
+}
+
 /**
  * Página /app: el chat de Remi en GUEST MODE (sin login para explorar).
  * El login + KYC (Self) se piden just-in-time, dentro del chat, solo cuando el
@@ -21,6 +28,7 @@ import type {
 export default function AppPage() {
   const { messages, sendMessage, status } = useChat();
   const [input, setInput] = useState("");
+  const account = useActiveAccount();
   const gate = usePaymentGate();
   // Pago pendiente de ejecutar tras pasar el gate (login + KYC).
   const [pending, setPending] = useState<PaymentConfirmation | null>(null);
@@ -36,15 +44,27 @@ export default function AppPage() {
     setInput("");
   };
 
-  // Ejecuta el pago de verdad (tx reales en Celo) vía /api/execute, y reporta
-  // el resultado en el chat con el hash. Sin simulación.
+  // Ejecuta el pago de verdad (tx reales en Celo) vía /api/execute. El usuario
+  // FIRMA el intent con su wallet (autorización server-side). Sin simulación.
   const execute = async (data: PaymentConfirmation) => {
+    if (!account) return;
     sendMessage({ text: "Executing payment on Celo…" });
     try {
+      const issuedAtMs = nowMs();
+      const intent = {
+        type: data.type,
+        amountUsd: data.amountUsd,
+        recipient: data.recipient,
+        country: data.country,
+        schedule: data.schedule,
+      };
+      const signature = await account.signMessage({
+        message: buildAuthMessage(intent, issuedAtMs),
+      });
       const res = await fetch("/api/execute", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ intent: data }),
+        body: JSON.stringify({ intent, signature, wallet: account.address, issuedAtMs }),
       });
       const receipt = (await res.json()) as {
         completed: boolean;

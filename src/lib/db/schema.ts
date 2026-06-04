@@ -22,6 +22,8 @@ export const intentStatus = pgEnum("intent_status", [
 
 export const paymentIntents = pgTable("payment_intents", {
   id: uuid("id").defaultRandom().primaryKey(),
+  /** Wallet del usuario dueño del pago (para límites de gasto server-side). */
+  ownerWallet: varchar("owner_wallet", { length: 42 }),
   type: varchar("type", { length: 16 }).notNull(),
   amountUsd: numeric("amount_usd").notNull(),
   recipient: varchar("recipient", { length: 128 }).notNull(),
