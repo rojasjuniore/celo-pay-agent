@@ -1,8 +1,9 @@
 import { describe, it, expect } from "vitest";
 import {
-  assertFeeCurrencyConfirmed,
   CELO_CHAIN_ID,
   FEE_CURRENCY_USDC,
+  FEE_CURRENCY_USDT,
+  USDT,
 } from "@/lib/celo-constants";
 
 describe("celo-constants", () => {
@@ -10,25 +11,13 @@ describe("celo-constants", () => {
     expect(CELO_CHAIN_ID).toBe(42220);
   });
 
-  it("la dirección verificada de USDC es un address 0x", () => {
+  it("las direcciones de feeCurrency (USDC y USDT) son address 0x válidas", () => {
     expect(FEE_CURRENCY_USDC).toMatch(/^0x[0-9a-fA-F]{40}$/);
-  });
-});
-
-describe("assertFeeCurrencyConfirmed", () => {
-  it("lanza error si el flag no está en 'true'", () => {
-    expect(() => assertFeeCurrencyConfirmed({})).toThrow(/UNCONFIRMED/);
+    expect(FEE_CURRENCY_USDT).toMatch(/^0x[0-9a-fA-F]{40}$/);
   });
 
-  it("lanza error si el flag tiene otro valor", () => {
-    expect(() =>
-      assertFeeCurrencyConfirmed({ FEECURRENCY_USDT_CONFIRMED: "1" }),
-    ).toThrow(/SIN CONFIRMAR/);
-  });
-
-  it("no lanza cuando el flag es exactamente 'true'", () => {
-    expect(() =>
-      assertFeeCurrencyConfirmed({ FEECURRENCY_USDT_CONFIRMED: "true" }),
-    ).not.toThrow();
+  it("el token USDT y su feeCurrency adapter son direcciones DISTINTAS", () => {
+    // El adapter (CGP-0167) no es el token: usar el token como fee currency falla.
+    expect(FEE_CURRENCY_USDT.toLowerCase()).not.toBe(USDT.toLowerCase());
   });
 });

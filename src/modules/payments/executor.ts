@@ -2,6 +2,7 @@ import type { PaymentIntent } from "@/modules/agent/payment-intent";
 import { buildExecutionPlan } from "@/modules/agent/execution-plan";
 import { usdToUnits } from "./amounts";
 import { USDT } from "@/lib/celo-constants";
+import { feeCurrencyFor } from "@/modules/wallet/fee-currency";
 import { currencyForCountry } from "@/modules/ramp/local-currency";
 import type { WalletPort } from "@/ports/wallet.port";
 import type { RevenuePort } from "@/ports/revenue.port";
@@ -65,11 +66,13 @@ export async function executePayment(
       steps.push({ key: "fee", txHash: feeHash, ok: true });
     }
 
-    // 2. Transfiere el neto a la deposit address de Noah en Celo (gasless).
+    // 2. Transfiere el neto a la deposit address de Noah en Celo, GASLESS:
+    // el gas se paga en USDT vía el feeCurrency adapter (CIP-64) — sin CELO.
     const transferHash = await deps.wallet.transferStablecoin({
       token: USDT,
       to: deps.ramp.depositAddress(),
       amount: net,
+      feeCurrency: feeCurrencyFor("USDT"),
     });
     await deps.logTx({ kind: "transfer", chain: "celo", txHash: transferHash, status: "confirmed" });
     steps.push({ key: "transfer", txHash: transferHash, ok: true });

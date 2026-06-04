@@ -1,5 +1,3 @@
-import { type EnvSource } from "@/lib/env";
-
 /**
  * Direcciones onchain verificadas en Celo Mainnet. Centralizadas aquí para que
  * ningún adapter hardcodee direcciones sueltas. Todas son `0x${string}` (formato
@@ -28,24 +26,10 @@ export const USDT: `0x${string}` =
 export const FEE_CURRENCY_USDC: `0x${string}` =
   "0x2F25deB3848C207fc8E0c34035B3Ba7fC157602B";
 
-// UNCONFIRMED: feeCurrency adapter para USDT. No usar sin confirmar onchain.
-// Protegido por assertFeeCurrencyConfirmed() abajo.
+/** feeCurrency adapter para USDT. VERIFICADO vía governance Celo CGP-0167. */
 export const FEE_CURRENCY_USDT: `0x${string}` =
-  "0x0e2a3e05bc9a16f5292a6170456a710cb89c6f72";
+  "0x0E2A3e05bc9A16F5292A6170456A710cb89C6f72";
 
-/**
- * Falla fuerte si se intenta usar el adapter USDT sin confirmarlo explícitamente
- * vía la env var FEECURRENCY_USDT_CONFIRMED=true. Evita pagar fees con una
- * dirección no verificada.
- */
-export function assertFeeCurrencyConfirmed(
-  source: EnvSource = process.env,
-): void {
-  // No está en el EnvSchema (es un flag de override puntual); se lee directo.
-  if (source.FEECURRENCY_USDT_CONFIRMED !== "true") {
-    throw new Error(
-      "USDT feeCurrency adapter is UNCONFIRMED; set FEECURRENCY_USDT_CONFIRMED=true after verifying onchain. / " +
-        "El adapter feeCurrency de USDT está SIN CONFIRMAR; verifícalo onchain y define FEECURRENCY_USDT_CONFIRMED=true.",
-    );
-  }
-}
+/** FeeCurrencyDirectory: whitelist on-chain de fee currencies. VERIFICADO. */
+export const FEE_CURRENCY_DIRECTORY: `0x${string}` =
+  "0x15F344b9E6c3Cb6F0376A36A64928b13F62C6276";

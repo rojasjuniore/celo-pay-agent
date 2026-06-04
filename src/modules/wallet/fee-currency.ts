@@ -6,8 +6,8 @@ import {
 
 /**
  * Mapea un token de pago a su feeCurrency adapter (para gas gasless en ese
- * mismo stablecoin). Lógica pura: no toca red. El adapter USDT está sin
- * confirmar y se protege aparte con assertFeeCurrencyConfirmed().
+ * mismo stablecoin). Lógica pura: no toca red. Ambos adapters (USDC y USDT)
+ * están verificados vía governance de Celo.
  */
 
 /** Símbolos de stablecoin soportados como feeCurrency. */
@@ -24,14 +24,6 @@ const FEE_CURRENCY_BY_TOKEN: Record<FeeToken, `0x${string}` | undefined> = {
 /** Devuelve el feeCurrency adapter para un token, o undefined si no aplica. */
 export function feeCurrencyFor(token: FeeToken): `0x${string}` | undefined {
   return FEE_CURRENCY_BY_TOKEN[token];
-}
-
-/** True si el feeCurrency dado es el adapter USDT (no verificado). */
-export function isUnconfirmedFeeCurrency(
-  feeCurrency: `0x${string}` | undefined,
-): boolean {
-  if (!feeCurrency) return false;
-  return feeCurrency.toLowerCase() === FEE_CURRENCY_USDT.toLowerCase();
 }
 
 export { USDM };

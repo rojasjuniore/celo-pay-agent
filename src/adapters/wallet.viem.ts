@@ -2,8 +2,6 @@ import { createWalletClient, createPublicClient, http, erc20Abi } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { celo } from "viem/chains";
 import { requireEnv } from "@/lib/env";
-import { assertFeeCurrencyConfirmed } from "@/lib/celo-constants";
-import { isUnconfirmedFeeCurrency } from "@/modules/wallet/fee-currency";
 import type { WalletPort, TransferParams } from "@/ports/wallet.port";
 
 // Fábricas tipadas por inferencia: evita el conflicto de `ReturnType<...>` con
@@ -42,10 +40,6 @@ export class ViemWalletAdapter implements WalletPort {
     amount,
     feeCurrency,
   }: TransferParams): Promise<`0x${string}`> {
-    // No mover dinero pagando gas con un adapter no verificado.
-    if (isUnconfirmedFeeCurrency(feeCurrency)) {
-      assertFeeCurrencyConfirmed();
-    }
     return this.clients.wallet.writeContract({
       account: this.account,
       chain: celo,
