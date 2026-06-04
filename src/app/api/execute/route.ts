@@ -22,17 +22,18 @@ import { getDb, schema } from "@/lib/db";
 export async function POST(request: Request): Promise<Response> {
   const body = (await request.json()) as Partial<SignedExecution>;
   const parsed = PaymentIntentSchema.safeParse(body.intent);
-  if (!parsed.success || !body.signature || !body.wallet || !body.issuedAtMs) {
+  if (!parsed.success || !body.signature || !body.wallet || !body.issuedAtMs || !body.nonce) {
     return Response.json({ error: "invalid request" }, { status: 400 });
   }
   const intent = parsed.data;
   const wallet = body.wallet.toLowerCase() as `0x${string}`;
+  const nonce = body.nonce;
 
   // 1. Firma fresca + válida → prueba que el caller controla `wallet`.
   if (!isFresh(body.issuedAtMs, Date.parse(new Date().toISOString()))) {
     return Response.json({ error: "signature expired" }, { status: 401 });
   }
-  const message = buildAuthMessage(intent, body.issuedAtMs);
+  const message = buildAuthMessage(intent, body.issuedAtMs, nonce);
   const validSig = await verifySignature({
     client: getThirdwebServerClient(),
     address: wallet,
@@ -44,6 +45,16 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const db = getDb();
+
+  // 1b. Consume el nonce (un solo uso). Si ya existía, es un replay → rechaza.
+  const inserted = await db
+    .insert(schema.usedNonces)
+    .values({ nonce, wallet })
+    .onConflictDoNothing()
+    .returning({ nonce: schema.usedNonces.nonce });
+  if (inserted.length === 0) {
+    return Response.json({ error: "nonce already used (replay)" }, { status: 401 });
+  }
 
   // 2. KYC server-side (la verdad está en la DB, no en el cliente).
   const acct = (
@@ -71,6 +82,18 @@ export async function POST(request: Request): Promise<Response> {
     if (e instanceof SpendLimitError) return Response.json({ error: e.message }, { status: 403 });
     throw e;
   }
+
+  // Registra el intent (con ownerWallet) ANTES de ejecutar: así cuenta para el
+  // límite semanal de futuras solicitudes y queda trazabilidad del pago.
+  await db.insert(schema.paymentIntents).values({
+    ownerWallet: wallet,
+    type: intent.type,
+    amountUsd: String(intent.amountUsd),
+    recipient: intent.recipient,
+    country: intent.country,
+    schedule: intent.schedule,
+    status: "executing",
+  });
 
   // Autorizado → ejecuta de verdad.
   const agentWallet = new ViemWalletAdapter();

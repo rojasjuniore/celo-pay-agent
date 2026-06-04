@@ -61,6 +61,13 @@ export const accounts = pgTable("accounts", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+/** Nonces de autorización ya consumidos (anti-replay de firmas). */
+export const usedNonces = pgTable("used_nonces", {
+  nonce: varchar("nonce", { length: 64 }).primaryKey(),
+  wallet: varchar("wallet", { length: 42 }).notNull(),
+  usedAt: timestamp("used_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 /** Beneficiarios (a quién le manda el usuario). */
 export const beneficiaries = pgTable("beneficiaries", {
   id: uuid("id").defaultRandom().primaryKey(),

@@ -14,12 +14,17 @@ const intent: PaymentIntent = {
 const NOW = 1_700_000_000_000;
 
 describe("buildAuthMessage", () => {
-  it("es determinista e incluye monto, destino e instante", () => {
-    const m = buildAuthMessage(intent, NOW);
-    expect(m).toBe(buildAuthMessage(intent, NOW));
+  it("es determinista e incluye monto, destino, instante y nonce", () => {
+    const m = buildAuthMessage(intent, NOW, "nonce-1");
+    expect(m).toBe(buildAuthMessage(intent, NOW, "nonce-1"));
     expect(m).toContain("$50");
     expect(m).toContain("mom");
     expect(m).toContain(String(NOW));
+    expect(m).toContain("nonce-1");
+  });
+
+  it("cambia si cambia el nonce (firmas no intercambiables)", () => {
+    expect(buildAuthMessage(intent, NOW, "a")).not.toBe(buildAuthMessage(intent, NOW, "b"));
   });
 });
 

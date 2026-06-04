@@ -13,14 +13,23 @@ export interface SignedExecution {
   intent: PaymentIntent;
   /** Epoch ms en que se firmó. */
   issuedAtMs: number;
+  /** Nonce de un solo uso (UUID) — anti-replay. */
+  nonce: string;
   /** Firma del mensaje por la wallet del usuario. */
   signature: `0x${string}`;
   /** Wallet que firma (debe coincidir con el recover). */
   wallet: `0x${string}`;
 }
 
-/** Mensaje canónico que se firma. Determinista a partir del intent + instante. */
-export function buildAuthMessage(intent: PaymentIntent, issuedAtMs: number): string {
+/**
+ * Mensaje canónico que se firma. Determinista a partir del intent + instante +
+ * nonce. El nonce liga la firma a un único uso (se consume server-side).
+ */
+export function buildAuthMessage(
+  intent: PaymentIntent,
+  issuedAtMs: number,
+  nonce: string,
+): string {
   return [
     "Remi — authorize payment",
     `type: ${intent.type}`,
@@ -29,6 +38,7 @@ export function buildAuthMessage(intent: PaymentIntent, issuedAtMs: number): str
     `country: ${intent.country}`,
     `schedule: ${intent.schedule}`,
     `issuedAt: ${issuedAtMs}`,
+    `nonce: ${nonce}`,
   ].join("\n");
 }
 

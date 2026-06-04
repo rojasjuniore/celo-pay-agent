@@ -43,6 +43,7 @@ export default function AppPage() {
     sendMessage({ text: "Executing payment on Celo…" });
     try {
       const issuedAtMs = nowMs();
+      const nonce = crypto.randomUUID();
       const intent = {
         type: data.type,
         amountUsd: data.amountUsd,
@@ -51,12 +52,12 @@ export default function AppPage() {
         schedule: data.schedule,
       };
       const signature = await account.signMessage({
-        message: buildAuthMessage(intent, issuedAtMs),
+        message: buildAuthMessage(intent, issuedAtMs, nonce),
       });
       const res = await fetch("/api/execute", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ intent, signature, wallet: account.address, issuedAtMs }),
+        body: JSON.stringify({ intent, signature, wallet: account.address, issuedAtMs, nonce }),
       });
       const receipt = (await res.json()) as {
         completed: boolean;
