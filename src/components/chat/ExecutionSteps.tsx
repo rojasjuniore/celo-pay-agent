@@ -3,9 +3,9 @@ import { celoscanTx, shortHash } from "./explorer";
 
 const ICON: Record<ExecutionStep["status"], string> = {
   pending: "○",
-  running: "⏳",
-  done: "✅",
-  failed: "❌",
+  running: "•••",
+  done: "✓",
+  failed: "✕",
 };
 
 /** Pasos de ejecución onchain en vivo. Datos reales por props. */

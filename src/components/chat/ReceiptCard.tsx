@@ -9,7 +9,7 @@ export function ReceiptCard({ receipt }: { receipt: Receipt }) {
       style={{ borderColor: "var(--color-border)", background: "var(--color-surface)" }}
     >
       <h3 className="text-sm font-semibold uppercase tracking-wide mb-4" style={{ color: "var(--color-success)" }}>
-        Recibo ✅
+        Recibo
       </h3>
       <dl className="space-y-2 text-sm">
         <Row label="Enviado" value={`$${receipt.sentUsd.toFixed(2)} USDT`} />

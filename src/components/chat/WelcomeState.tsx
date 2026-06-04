@@ -1,8 +1,8 @@
 const SUGGESTIONS = [
-  { icon: "💸", text: "Manda $50 a Colombia" },
-  { icon: "🔁", text: "Pago recurrente cada mes" },
-  { icon: "🧾", text: "Divide una cuenta" },
-  { icon: "📊", text: "¿Cómo va mi actividad?" },
+  { text: "Manda $50 a Colombia" },
+  { text: "Pago recurrente cada mes" },
+  { text: "Divide una cuenta" },
+  { text: "¿Cómo va mi actividad?" },
 ];
 
 /** Estado inicial del chat. onPick envía la sugerencia como mensaje. */
@@ -11,10 +11,10 @@ export function WelcomeState({ onPick }: { onPick: (text: string) => void }) {
     <div className="flex flex-col items-center text-center gap-6 py-12">
       <div className="flex items-center gap-2">
         <span
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full text-xl"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full text-lg font-semibold"
           style={{ background: "var(--color-celo)" }}
         >
-          🤖
+          R
         </span>
         <h1 className="text-2xl font-semibold" style={{ color: "var(--color-primary)" }}>
           PagaBot
@@ -31,7 +31,6 @@ export function WelcomeState({ onPick }: { onPick: (text: string) => void }) {
             className="rounded-[12px] border p-4 text-left text-sm transition-colors"
             style={{ borderColor: "var(--color-border)", background: "var(--color-surface)" }}
           >
-            <span className="mr-2" aria-hidden>{s.icon}</span>
             {s.text}
           </button>
         ))}

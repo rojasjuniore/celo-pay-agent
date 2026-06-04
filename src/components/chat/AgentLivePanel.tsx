@@ -19,18 +19,18 @@ export function AgentLivePanel({
     >
       <Card title="Identidad">
         <div className="flex items-center gap-2 mb-2">
-          <span className="h-6 w-6 rounded-full inline-flex items-center justify-center text-xs" style={{ background: "var(--color-celo)" }}>🤖</span>
+          <span className="h-6 w-6 rounded-full inline-flex items-center justify-center text-xs font-semibold" style={{ background: "var(--color-celo)" }}>R</span>
           <span className="font-medium" style={{ color: "var(--color-primary)" }}>PagaBot</span>
         </div>
         {identity?.agentId ? (
           <a href={scan8004(identity.agentId)} target="_blank" rel="noreferrer" className="text-xs font-mono block" style={{ color: "var(--color-tertiary)" }}>
-            ✅ ERC-8004 #{identity.agentId} ↗
+            ✓ ERC-8004 #{identity.agentId} ↗
           </a>
         ) : (
           <p className="text-xs" style={{ color: "var(--color-neutral)" }}>Sin registrar aún</p>
         )}
         {identity?.selfVerified && (
-          <p className="text-xs mt-1" style={{ color: "var(--color-success)" }}>🛡 Self verificado</p>
+          <p className="text-xs mt-1" style={{ color: "var(--color-success)" }}>✓ Self verificado</p>
         )}
       </Card>
 

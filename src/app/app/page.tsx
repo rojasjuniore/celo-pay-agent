@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useChat } from "@ai-sdk/react";
+import { AuthGate } from "@/components/auth/AuthGate";
 import { WelcomeState } from "@/components/chat/WelcomeState";
 import { AgentLivePanel } from "@/components/chat/AgentLivePanel";
 import { ConfirmationCard } from "@/components/chat/ConfirmationCard";
@@ -11,12 +12,21 @@ import type {
   PaymentConfirmation,
 } from "@/components/chat/types";
 
+/** Página /app: protegida por AuthGate (login + KYC) → renderiza el chat. */
+export default function AppPage() {
+  return (
+    <AuthGate>
+      <ChatApp />
+    </AuthGate>
+  );
+}
+
 /**
  * UI del agente (estilo ChatGPT, 3 zonas): sidebar · chat · panel live.
  * El chat usa useChat (AI SDK v6) contra /api/chat. La identidad y actividad
  * vienen de datos reales (null hasta que el backend los provea — sin mocks).
  */
-export default function Home() {
+function ChatApp() {
   const { messages, sendMessage, status } = useChat();
   const [input, setInput] = useState("");
 

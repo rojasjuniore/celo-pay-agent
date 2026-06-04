@@ -66,7 +66,7 @@ function ChatDemo() {
     { label: "You send", value: "$50.00 USDT", delay: 1.0 },
     { label: "Service fee", value: "$0.25 (0.5%)", delay: 1.2, soft: true },
     { label: "They receive", value: "~$200,000 COP", delay: 1.4 },
-    { label: "Gas", value: "$0 ⚡", delay: 1.6, up: true },
+    { label: "Gas", value: "$0", delay: 1.6, up: true },
     { label: "Network", value: "100% Celo", delay: 1.8 },
   ];
   return (

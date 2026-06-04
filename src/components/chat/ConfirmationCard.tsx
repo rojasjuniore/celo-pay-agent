@@ -37,7 +37,7 @@ export function ConfirmationCard({
         )}
         <Row label="Frecuencia" value={SCHEDULE_LABEL[data.schedule] ?? data.schedule} />
         <Row label="Red" value="100% en Celo" />
-        <Row label="Gas" value="$0 (pagado en USDT) ⚡" />
+        <Row label="Gas" value="$0 (pagado en USDT)" />
       </dl>
       <div className="flex gap-2 mt-5">
         <button

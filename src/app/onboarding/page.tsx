@@ -112,7 +112,12 @@ export default function Onboarding() {
 
               {state.step === "done" && (
                 <div className="text-center">
-                  <div className="text-5xl mb-4">🎉</div>
+                  <div
+                    className="mx-auto mb-5 h-14 w-14 rounded-full flex items-center justify-center text-2xl"
+                    style={{ background: "var(--cb-up)", color: "#fff" }}
+                  >
+                    ✓
+                  </div>
                   <h2 className="text-3xl font-medium mb-2" style={{ color: "var(--cb-ink)" }}>You&apos;re in.</h2>
                   <p className="mb-8" style={{ color: "var(--cb-body)" }}>
                     Verified with a zero-knowledge proof. Ready to send money by talking.
