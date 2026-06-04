@@ -2,33 +2,28 @@
 
 import { useState } from "react";
 import { useChat } from "@ai-sdk/react";
-import { AuthGate } from "@/components/auth/AuthGate";
 import { WelcomeState } from "@/components/chat/WelcomeState";
 import { AgentLivePanel } from "@/components/chat/AgentLivePanel";
 import { ConfirmationCard } from "@/components/chat/ConfirmationCard";
+import { PaymentGate } from "@/components/chat/PaymentGate";
+import { usePaymentGate } from "@/components/auth/usePaymentGate";
 import type {
   AgentIdentity,
   AgentActivity,
   PaymentConfirmation,
 } from "@/components/chat/types";
 
-/** Página /app: protegida por AuthGate (login + KYC) → renderiza el chat. */
-export default function AppPage() {
-  return (
-    <AuthGate>
-      <ChatApp />
-    </AuthGate>
-  );
-}
-
 /**
- * UI del agente (estilo ChatGPT, 3 zonas): sidebar · chat · panel live.
- * El chat usa useChat (AI SDK v6) contra /api/chat. La identidad y actividad
- * vienen de datos reales (null hasta que el backend los provea — sin mocks).
+ * Página /app: el chat de Remi en GUEST MODE (sin login para explorar).
+ * El login + KYC (Self) se piden just-in-time, dentro del chat, solo cuando el
+ * usuario confirma un pago — el flujo que mejor convierte (investigación).
  */
-function ChatApp() {
+export default function AppPage() {
   const { messages, sendMessage, status } = useChat();
   const [input, setInput] = useState("");
+  const gate = usePaymentGate();
+  // Pago pendiente de ejecutar tras pasar el gate (login + KYC).
+  const [pending, setPending] = useState<PaymentConfirmation | null>(null);
 
   // Hasta cablear el feed real desde la DB/onchain, no inventamos datos.
   const identity: AgentIdentity | null = null;
@@ -104,8 +99,13 @@ function ChatApp() {
                           <ConfirmationCard
                             key={i}
                             data={data}
-                            onConfirm={() => submit("Confirmo el pago")}
-                            onEdit={() => submit("Quiero cambiar el pago")}
+                            onConfirm={() => {
+                              // Gate just-in-time: si falta login/KYC, lo pide
+                              // ahora (PaymentGate); si ya está, ejecuta.
+                              if (gate.ready) submit("Confirm the payment");
+                              else setPending(data);
+                            }}
+                            onEdit={() => submit("I want to change the payment")}
                           />
                         );
                       }
@@ -153,6 +153,18 @@ function ChatApp() {
 
       {/* Panel live */}
       <AgentLivePanel identity={identity} activity={activity} />
+
+      {/* Gate just-in-time: login + KYC, solo al confirmar un pago */}
+      {pending && (
+        <PaymentGate
+          gate={gate}
+          onReady={() => {
+            setPending(null);
+            submit("Confirm the payment");
+          }}
+          onCancel={() => setPending(null)}
+        />
+      )}
     </div>
   );
 }
