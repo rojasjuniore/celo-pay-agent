@@ -1,184 +1,211 @@
 <div align="center">
 
-# celo-pay-agent 🟡
+# Remi
 
-### Envía dinero hablando. Gasless en Celo. Liquidado en moneda local, en cualquier país.
+### Send money by talking. Gasless on Celo. Settled in local currency, anywhere.
 
-**Un agente de IA conversacional que ejecuta pagos y remesas reales onchain** — hablas en
-español o inglés, y el agente paga en USDT sobre Celo (gas pagado en el propio stablecoin),
-registrado on-chain en ERC-8004, y liquida a la moneda local del destinatario vía Noah.
+**An AI agent that executes real remittances on-chain.** You talk to it in English or Spanish —
+*"send $50 to my mom in Bogotá every two weeks"* — and Remi handles everything: understands the
+intent, shows the cost transparently, and executes the payment in USDT on Celo (gas paid in the
+stablecoin itself), registered on-chain via ERC-8004, settled to the recipient's local currency
+through Noah. Global off-ramp, 120+ currencies.
 
-[![Tests](https://img.shields.io/badge/tests-56%20passing-16A34A)](#desarrollo)
-[![Build](https://img.shields.io/badge/build-passing-16A34A)](#desarrollo)
-[![Celo](https://img.shields.io/badge/network-Celo%20Mainnet-FCFF52)](https://celo.org)
-[![License](https://img.shields.io/badge/license-MIT-2563EB)](#licencia)
+[![Tests](https://img.shields.io/badge/tests-61%20passing-16A34A)](#development)
+[![Build](https://img.shields.io/badge/build-passing-16A34A)](#development)
+[![Network](https://img.shields.io/badge/network-Celo%20Mainnet-FCFF52)](https://celo.org)
+[![License](https://img.shields.io/badge/license-MIT-2563EB)](#license)
 
-Proyecto para el **[Onchain Agents Hackathon de Celo](https://celoplatform.notion.site/Onchain-Agents-Hackathon-Build-for-Real-World-Payments-Everyday-Applications-364d5cb803de800c9502d8a384716324)** · 22 may – 15 jun 2026
+Built for the **[Onchain Agents Hackathon · Celo](https://celoplatform.notion.site/Onchain-Agents-Hackathon-Build-for-Real-World-Payments-Everyday-Applications-364d5cb803de800c9502d8a384716324)** · May 22 – Jun 15, 2026
 
 </div>
 
 ---
 
-## El problema
+## The problem
 
-Las remesas tradicionales cobran **3–7%** y tardan días. Las cripto-nativas son rápidas y baratas,
-pero exigen que el usuario entienda wallets, gas, redes y swaps. **Nadie quiere aprender eso para
-mandarle plata a su mamá.**
+Traditional remittances charge **3–7%** and take days. Crypto-native ones are fast and cheap, but
+force the user to understand wallets, gas, networks and swaps. **Nobody wants to learn that just to
+send money to their mom.**
 
-## La solución
+## The solution
 
-Le hablas normal a un agente — *"manda $50 a mi mamá en Bogotá cada quincena"* — y él hace todo:
-interpreta la intención, te muestra el costo de forma transparente, y ejecuta el pago **sin que
-toques una sola pieza de cripto**. El gas se paga en USDT (no necesitas CELO), y el destinatario
-recibe pesos (o su moneda local) en su cuenta.
+You talk to an agent in plain language and it does the rest: parses your intent, shows the cost
+transparently, and executes the payment **without you touching a single piece of crypto**. Gas is
+paid in USDT (no CELO needed), and the recipient gets their local currency in their account.
 
 ```
 "send $50 to my mom in Bogotá every two weeks"
-        ↓
-  💸 $50 USDT · fee $0.25 (0.5%) · recibe ~$200.000 COP · gas $0 · 100% en Celo
-        ↓
-  ✅ enviado — ver en Celoscan ↗
+        |
+   You send $50 USDT · fee $0.25 (0.5%) · they receive ~$200,000 COP · gas $0 · 100% on Celo
+        |
+   sent — view on Celoscan
 ```
 
-## Por qué compite en los 3 tracks
+## The flow (research-backed)
 
-| Track | Cómo lo gana |
+Remi is a **chat**, so onboarding is conversational and progressive — the highest-converting pattern
+for crypto payments (guest mode cuts drop-off 30–50%; just-in-time KYC lifts conversion ~70% vs.
+upfront).
+
+```
+Landing (/)  ->  Chat opens in GUEST MODE (no login to explore)
+                     "Who do you want to send money to?"
+                          |  user builds the payment by talking
+                          v
+                 On confirm, the gate kicks in (just-in-time):
+                     - no login?  -> inline login (thirdweb: email->embedded wallet, or wallet)
+                     - no KYC?    -> Self ZK passport QR appears inside the chat
+                          v
+                 Verified -> executes the payment on Celo -> receipt
+```
+
+## How it competes in all 3 tracks
+
+| Track | How it wins |
 |---|---|
-| 🥇 **Best Agent on Celo** | Utilidad real: remesas gasless con off-ramp global. Agente con **agencia económica real** (cobra su propio fee onchain). |
-| ⚡ **Most Activity** | Cada remesa = varias tx en Celo (fee + x402 + transfer). El **cron autónomo** re-ejecuta pagos recurrentes → volumen consistente y legítimo. |
-| 🏆 **Highest 8004scan Rank** | Identidad registrada en **ERC-8004**, verificada con **Self Agent ID** (proof-of-human, anti-sybil). |
+| **Best Agent on Celo** | Real utility: gasless remittances with global off-ramp. An agent with its own **economic agency** (charges its own fee on-chain). |
+| **Most Activity** | Each remittance = several tx on Celo (fee + x402 + transfer). The **autonomous cron** re-runs recurring payments → consistent, legitimate volume. |
+| **Highest 8004scan Rank** | Identity registered on **ERC-8004**, verified with **Self Agent ID** (proof-of-human, sybil-resistant). |
 
-> **Diseño clave:** todo el onchain ocurre **dentro de Celo** (sin bridges a otras redes). El agente
-> envía USDT directo a Noah en Celo; Noah liquida a moneda local. Más simple, más barato, y mantiene
-> toda la actividad en la cadena del hackatón.
+> **Key design:** all on-chain activity stays **on Celo** (no bridges). The agent sends USDT directly
+> to Noah's Celo deposit address; Noah settles to local currency. Simpler, cheaper, and keeps every
+> transaction on the hackathon's chain.
 
-## Cómo funciona
+## Execution flow (100% on Celo)
 
 ```
-┌─ Usuario (ES/EN) ──────────────────────────────────────────────┐
-│  "manda $50 a mi mamá en Bogotá cada quincena"                  │
-└────────────────────────────┬────────────────────────────────────┘
-                             ▼
-   🧠  Claude Sonnet 4.6 (OpenRouter)  →  PaymentIntent (validado con Zod)
-                             ▼
-   🛡️  Policy (límite por tx)  +  fee de servicio 0.5% (transparente)
-                             ▼
-   ✅  Tarjeta de confirmación  →  el usuario confirma
-                             ▼
-   ⛓️  Ejecución gasless, 100% en Celo:
-        1. fee → tesorería (USDT)
-        2. quote de FX (x402)
-        3. transfer USDT → deposit address de Noah (Celo)
-        4. Noah liquida → moneda local del destinatario (120+ monedas)
-                             ▼
-   🧾  Recibo con links a Celoscan + 8004scan
-        └─ si es recurrente → el cron lo re-ejecuta automáticamente
+User (EN/ES)  ->  Claude Sonnet 4.6 (OpenRouter)  ->  PaymentIntent (Zod-validated)
+              ->  policy (per-tx limit) + 0.5% service fee (transparent)
+              ->  confirmation card  ->  user confirms
+              ->  gasless execution on Celo:
+                    1. fee  -> treasury (USDT)
+                    2. FX quote (x402)
+                    3. transfer USDT -> Noah deposit address (Celo)
+                    4. Noah settles -> recipient's local currency (120+ currencies)
+              ->  receipt with Celoscan + 8004scan links
+                    (recurring -> the cron re-runs it automatically)
 ```
 
 ## Stack
 
-| Capa | Tecnología | Por qué |
+| Layer | Tech | Why |
 |---|---|---|
 | Chat / UI | Next.js 16 (App Router) + AI SDK v6 | streaming, RSC, useChat |
-| Cerebro | OpenRouter → Claude Sonnet 4.6 | bilingüe ES/EN, tool calling |
-| Wallet + gasless | viem + `feeCurrency` (CIP-64) | gas pagado en USDT, sin CELO |
-| Pagos agente-a-agente | thirdweb x402 | micro-pagos onchain |
-| Identidad | ERC-8004 (ABI oficial) | registro on-chain → 8004scan |
-| Anti-sybil | Self Agent ID | proof-of-human |
-| Off-ramp | **Noah** (global, USDT directo en Celo) | 120+ monedas, corredor por país |
-| Monetización | fee de servicio configurable, onchain | modelo de negocio real y transparente |
-| Persistencia | Drizzle + Neon Postgres | intents + log de tx (datos reales) |
-| Autonomía | Vercel Cron | pagos programados/recurrentes |
-| Tests | Vitest (TDD) | 56 tests, dominio puro testeable |
+| Brain | OpenRouter → Claude Sonnet 4.6 | bilingual EN/ES, tool calling |
+| Login | thirdweb (wallet or email → embedded wallet) | no-crypto-friendly auth |
+| Wallet + gasless | viem + `feeCurrency` (CIP-64) | gas paid in USDT, no CELO |
+| Agent payments | thirdweb x402 | on-chain micropayments |
+| Identity | ERC-8004 (official ABI) | on-chain registry → 8004scan |
+| KYC / anti-sybil | Self Protocol (ZK passport) | proof-of-human, no docs stored |
+| Off-ramp | **Noah** (global, USDT direct on Celo) | 120+ currencies, corridor by country |
+| Monetization | configurable service fee, on-chain | real, transparent business model |
+| Persistence | Drizzle + Postgres (Railway) | accounts, intents, tx log |
+| Autonomy | Cron | scheduled / recurring payments |
+| Tests | Vitest (TDD) | 61 tests, pure testable domain |
 
-## Arquitectura — Ports & Adapters
+## Architecture — Ports & Adapters
 
-El dominio es **puro y testeable**; todo el I/O (blockchain, LLM, DB, off-ramp) vive en los bordes
-como adapters intercambiables. Esto permite testear la lógica de negocio sin red ni credenciales.
+The domain is **pure and testable**; all I/O (blockchain, LLM, DB, off-ramp, KYC) lives at the edges
+as swappable adapters. Business logic is tested without network or credentials.
 
 ```
 src/
-├─ modules/        # dominio puro (sin I/O): parseIntent, policy, fee, execution-plan…
-│  └─ {agent, wallet, payments, identity, verify, ramp, revenue, scheduler}/
+├─ modules/        # pure domain (no I/O): parseIntent, policy, fee, execution-plan, onboarding/steps…
 ├─ ports/          # interfaces: Wallet · Payment · Identity · LLM · Ramp · Revenue · Verify
-├─ adapters/       # implementaciones: viem · thirdweb · erc8004 · openrouter · noah · treasury · self
-├─ components/chat/ # UI tipada (DESIGN.md + acento Celo #FCFF52)
-├─ lib/            # env (Zod), celo-constants, db (Drizzle), design-tokens
-└─ app/api/        # endpoints: /chat · /x402/quote · /cron/execute
+├─ adapters/       # impls: viem · thirdweb · erc8004 · openrouter · noah · treasury · self
+├─ components/     # landing (bilingual) · chat · onboarding · auth
+├─ lib/            # env (Zod), celo-constants, db (Drizzle/pg), design-tokens, thirdweb-client
+└─ app/            # routes below
 ```
 
-**Principios:** sin mock data (si falta una credencial, **falla fuerte**, no inventa); funciones
-< 50 líneas; comentarios solo para el *por qué*. Ver `CLAUDE.md`.
+**Routes**
 
-## Desarrollo
+| Route | What |
+|---|---|
+| `/` | Landing — bilingual (EN/ES toggle), Coinbase-style, animated |
+| `/app` | The chat agent (guest mode + just-in-time login/KYC) |
+| `/onboarding` | Standalone KYC stepper (alternative entry) |
+| `/api/chat` | Streaming chat + `proposePayment` tool |
+| `/api/self/verify` | Verifies the Self ZK proof server-side — the **only** thing that marks KYC |
+| `/api/account/[wallet]` | Read-only account/KYC status |
+| `/api/x402/quote` | x402-gated FX quote |
+| `/api/cron/execute` | Autonomous executor of due payments |
+
+**Principles:** no mock data (missing a credential → **fails loud**, never invents); functions
+< 50 lines; comments for *why*, not *what*. See `CLAUDE.md`.
+
+## Development
 
 ```bash
 npm install
-cp .env.example .env.local   # completar con credenciales reales
+cp .env.example .env.local   # fill with real credentials
 
 npm run dev          # http://localhost:3000
-npm run test         # Vitest — 56 tests
+npm run test         # Vitest — 61 tests
 npm run typecheck    # tsc --noEmit
 npm run lint
-npm run build        # build de producción
+npm run build        # production build
 ```
 
-> **Demo mínima:** con solo `OPENROUTER_API_KEY` en `.env.local`, el chat ya conversa, entiende
-> ES/EN y propone pagos con el fee real. El flujo onchain se activa al añadir las llaves de wallet.
+> **Minimal demo:** with just `OPENROUTER_API_KEY` + `NEXT_PUBLIC_THIRDWEB_CLIENT_ID` in
+> `.env.local`, the landing and chat run, and Remi understands EN/ES and proposes payments with the
+> real fee. The on-chain execution activates once the wallet keys are added.
 
 ### Scripts
 
-| Comando | Qué hace |
+| Command | What it does |
 |---|---|
-| `npm run register-agent` | Registra el agente en ERC-8004 (IPFS + mint) → imprime `agentId` y link a 8004scan. Requiere `AGENT_PRIVATE_KEY`, `CELO_RPC_URL`, `PINATA_JWT`. |
-| `npm run check-noah` | Consulta la API de Noah (`/channels/sell`) para ver qué cripto/redes acepta tu cuenta. |
-| `npm run db:generate` / `db:migrate` | Migraciones Drizzle (Neon Postgres). |
+| `npm run register-agent` | Registers the agent on ERC-8004 (IPFS + mint) → prints `agentId` and 8004scan link. Needs `AGENT_PRIVATE_KEY`, `CELO_RPC_URL`, `PINATA_JWT`. |
+| `npm run check-noah` | Queries Noah's API (`/channels/sell`) to see which crypto/networks your account accepts. |
+| `npm run db:generate` / `db:migrate` | Drizzle migrations (Postgres on Railway, `pg` driver). |
 
-## Datos onchain (Celo Mainnet)
+## On-chain data (Celo Mainnet)
 
-| Qué | Dirección |
+| What | Address |
 |---|---|
 | ERC-8004 Identity Registry | `0x8004A169FB4a3325136EB29fA0ceB6D2e539a432` |
 | USDT (Celo) | `0x48065fbBE25f71C9282ddf5e1cD6D6A887483D5e` |
 | feeCurrency adapter USDC (gasless) | `0x2F25deB3848C207fc8E0c34035B3Ba7fC157602B` |
-| Noah deposit (Celo) | configurable en `NOAH_DEPOSIT_ADDRESS` |
+| Noah deposit (Celo) | configured via `NOAH_DEPOSIT_ADDRESS` |
 
-> ⚠️ El adapter `feeCurrency` de USDT y el contrato exacto de la API de Noah deben verificarse antes
-> de mover dinero real — el código falla fuerte hasta confirmarlos (nada hardcodeado a ciegas).
+> The USDT `feeCurrency` adapter and Noah's exact API contract must be verified before moving real
+> money — the code fails loud until they're confirmed (nothing blindly hardcoded).
 
-### Producto real — todo en producción
+## Real product — all in production
 
-Este es un **producto real**, no una demo de pruebas: corre **100% en Celo mainnet** (registro
-ERC-8004, transfers gasless, x402, fee — todo cuenta para los tracks del hackatón) y el off-ramp
-usa **Noah en producción** (`https://api.noah.com`) para liquidar a moneda local de verdad.
+This is a **real product**, not a test demo: it runs **100% on Celo mainnet** (ERC-8004 registration,
+gasless transfers, x402, fee — all counting toward the hackathon tracks) and the off-ramp uses
+**Noah in production** (`https://api.noah.com`) to settle to local currency for real. KYC is real
+too: the Self ZK proof is verified server-side and is the only thing that grants verified status.
 
-Producción implica completar el **onboarding de Noah** (KYC/KYB; para LATAM vía VelaFi) — un paso de
-negocio, no de código. El agente ya está cableado contra los endpoints de prod.
+Production requires completing Noah's **onboarding** (KYC/KYB; via VelaFi for LATAM) — a business
+step, not a code one. The agent is already wired to the production endpoints.
 
-## Estado
+## Status
 
-**Listo:**
-- ✅ Dominio bilingüe (`parseIntent` ES/EN) · policy · fee
-- ✅ WalletPort gasless (viem + `feeCurrency`)
-- ✅ IdentityPort ERC-8004 (register → 8004scan)
-- ✅ PaymentPort x402 (thirdweb)
-- ✅ LLMPort + chat streaming con tool `proposePayment` (AI SDK v6)
-- ✅ DB Drizzle/Neon + cron autónomo
-- ✅ RampPort Noah (off-ramp global) + RevenuePort (fee real)
-- ✅ VerifyPort Self Agent ID
-- ✅ UI chat 3 zonas (DESIGN.md) · **build de producción OK**
+**Done**
+- Bilingual domain (`parseIntent` EN/ES), policy, fee
+- WalletPort gasless (viem + `feeCurrency`)
+- IdentityPort ERC-8004 (register → 8004scan)
+- PaymentPort x402 (thirdweb)
+- LLMPort + streaming chat with `proposePayment` tool (AI SDK v6)
+- DB (Drizzle/Postgres on Railway) + autonomous cron + `accounts`/`beneficiaries`
+- RampPort Noah (global off-ramp) + RevenuePort (real fee)
+- VerifyPort Self Agent ID + server-side ZK verification
+- Login (thirdweb) + guest mode + just-in-time KYC flow
+- Landing (bilingual, animated) + chat UI — **production build passing**
 
-**Pendiente:**
-- ⏳ Ejecutor onchain end-to-end (firma y encadena las tx reales) — requiere credenciales
-- ⏳ Confirmar el contrato de la API de Noah (`npm run check-noah`)
-- ⏳ Registro onchain real + submission por Celopedia
+**Pending**
+- On-chain executor end-to-end (signs and chains the real tx) — needs funded wallet
+- Confirm Noah's API contract (`npm run check-noah`)
+- Real on-chain registration + Celopedia submission
 
 ## Roadmap
 
-- **v2 — Monetización por spread FX**: margen en la tasa de cambio además del fee de servicio.
-- **v2 — Más corredores**: ampliar el mapa país→moneda más allá de LATAM.
-- **v2 — Feed de actividad real**: panel live alimentado desde el log de tx onchain.
+- **v2 — FX-spread monetization**: margin on the exchange rate in addition to the service fee.
+- **v2 — More corridors**: extend the country→currency map beyond LATAM.
+- **v2 — Live activity feed**: panel fed from the on-chain tx log.
 
-## Licencia
+## License
 
 MIT © [rojasjuniore](https://github.com/rojasjuniore)
