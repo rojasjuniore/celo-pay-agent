@@ -1,0 +1,132 @@
+"use client";
+
+import { createContext, useContext, useState } from "react";
+
+/**
+ * i18n mínimo para la landing (EN/ES), sin librería. Diccionario tipado +
+ * contexto. Default EN (jueces internacionales). El toggle vive en el Nav.
+ */
+export type Lang = "en" | "es";
+
+export const COPY = {
+  en: {
+    badge: "Onchain Agents Hackathon · Celo",
+    heroTitle1: "Send money",
+    heroTitle2: "by talking.",
+    heroSub:
+      "Remi is an AI agent that sends real remittances on Celo — gasless, without touching a single piece of crypto, settled in local currency anywhere.",
+    tryRemi: "Try Remi",
+    viewCode: "View the code",
+    you: "You",
+    chatMsg: "send $50 to my mom in Bogotá every two weeks",
+    rowSend: "You send",
+    rowFee: "Service fee",
+    rowReceive: "They receive",
+    rowGas: "Gas",
+    rowNetwork: "Network",
+    howTitle: "How it works",
+    how1Title: "Talk normally",
+    how1: "“send $50 to my mom in Bogotá”. In English or Spanish. Remi gets the intent.",
+    how2Title: "Confirm",
+    how2: "Remi shows the amount, the fee (0.5%, transparent) and what they receive — before moving anything.",
+    how3Title: "Done",
+    how3: "Executes gasless on Celo and settles in local currency. Receipt with Celoscan links.",
+    tracksTitle: "Built to win",
+    tracksSub: "One agent competing across all 3 tracks.",
+    track1Tag: "Best Agent",
+    track1: "Real utility: gasless remittances with global off-ramp. An agent with its own economic agency.",
+    track2Tag: "Most Activity",
+    track2: "Every remittance = several tx on Celo. The autonomous cron re-runs recurring payments.",
+    track3Tag: "8004scan Rank",
+    track3: "On-chain identity via ERC-8004, verified with Self Agent ID (proof-of-human).",
+    ctaTitle: "Send your first remittance by talking.",
+    ctaButton: "Open Remi",
+    footerLeft: "Remi · payments agent on Celo",
+    footerRight: "Onchain Agents Hackathon 2026 · MIT",
+    openApp: "Open app",
+    noahTitle: "Settle anywhere, powered by Noah",
+    noahSub: "The agent sends USDT directly on Celo to Noah, which settles to local currency.",
+    noah1Title: "120+ currencies",
+    noah1: "Noah resolves the payout corridor by country. Colombia is just the demo — the product is global.",
+    noah2Title: "USDT direct on Celo",
+    noah2: "No bridge, no swap. The agent sends USDT to Noah's Celo deposit address. All onchain stays on Celo.",
+    noah3Title: "Bank-grade off-ramp",
+    noah3: "Production payouts to local bank accounts, with webhooks for live settlement status.",
+    techTitle: "Built on real infrastructure",
+    techSub: "Every piece is production tooling — no mocks.",
+    techCelo: "Gasless payments via fee abstraction (CIP-64): gas paid in USDT, no CELO needed.",
+    techErc: "On-chain agent identity, discoverable and ranked on 8004scan.",
+    techX402: "Agent-to-agent micropayments over the x402 protocol.",
+    techSelf: "Zero-knowledge passport KYC — proof-of-human without storing documents.",
+    techAi: "Claude Sonnet 4.6 via OpenRouter — bilingual intent understanding.",
+    techNoah: "Global off-ramp to 120+ local currencies.",
+  },
+  es: {
+    badge: "Onchain Agents Hackathon · Celo",
+    heroTitle1: "Envía dinero",
+    heroTitle2: "hablando.",
+    heroSub:
+      "Remi es un agente de IA que envía remesas reales en Celo — sin gas, sin tocar una sola pieza de cripto, liquidadas en moneda local en cualquier país.",
+    tryRemi: "Probar Remi",
+    viewCode: "Ver el código",
+    you: "Tú",
+    chatMsg: "manda $50 a mi mamá en Bogotá cada quincena",
+    rowSend: "Envías",
+    rowFee: "Comisión",
+    rowReceive: "Recibe",
+    rowGas: "Gas",
+    rowNetwork: "Red",
+    howTitle: "Cómo funciona",
+    how1Title: "Habla normal",
+    how1: "“manda $50 a mi mamá en Bogotá”. En español o inglés. Remi entiende la intención.",
+    how2Title: "Confirma",
+    how2: "Remi muestra el monto, la comisión (0.5%, transparente) y lo que recibe — antes de mover nada.",
+    how3Title: "Listo",
+    how3: "Ejecuta sin gas en Celo y liquida a moneda local. Recibo con links a Celoscan.",
+    tracksTitle: "Diseñado para ganar",
+    tracksSub: "Un agente que compite en los 3 tracks.",
+    track1Tag: "Best Agent",
+    track1: "Utilidad real: remesas sin gas con off-ramp global. Un agente con agencia económica propia.",
+    track2Tag: "Most Activity",
+    track2: "Cada remesa = varias tx en Celo. El cron autónomo re-ejecuta pagos recurrentes.",
+    track3Tag: "8004scan Rank",
+    track3: "Identidad on-chain en ERC-8004, verificada con Self Agent ID (proof-of-human).",
+    ctaTitle: "Manda tu primera remesa hablando.",
+    ctaButton: "Abrir Remi",
+    footerLeft: "Remi · agente de pagos en Celo",
+    footerRight: "Onchain Agents Hackathon 2026 · MIT",
+    openApp: "Abrir app",
+    noahTitle: "Liquida en cualquier país, con Noah",
+    noahSub: "El agente envía USDT directo en Celo a Noah, que liquida a moneda local.",
+    noah1Title: "120+ monedas",
+    noah1: "Noah resuelve el corredor de pago según el país. Colombia es solo el demo — el producto es global.",
+    noah2Title: "USDT directo en Celo",
+    noah2: "Sin bridge, sin swap. El agente envía USDT a la dirección de depósito de Noah en Celo. Todo el onchain queda en Celo.",
+    noah3Title: "Off-ramp bancario",
+    noah3: "Pagos en producción a cuentas bancarias locales, con webhooks para el estado de liquidación en vivo.",
+    techTitle: "Sobre infraestructura real",
+    techSub: "Cada pieza es tecnología de producción — sin mocks.",
+    techCelo: "Pagos sin gas vía fee abstraction (CIP-64): el gas se paga en USDT, sin necesitar CELO.",
+    techErc: "Identidad on-chain del agente, descubrible y rankeada en 8004scan.",
+    techX402: "Micropagos agente-a-agente sobre el protocolo x402.",
+    techSelf: "KYC con pasaporte zero-knowledge — proof-of-human sin almacenar documentos.",
+    techAi: "Claude Sonnet 4.6 vía OpenRouter — entiende la intención en español e inglés.",
+    techNoah: "Off-ramp global a 120+ monedas locales.",
+  },
+} as const;
+
+export type CopyKey = keyof typeof COPY.en;
+
+const LangContext = createContext<{ lang: Lang; setLang: (l: Lang) => void; t: (k: CopyKey) => string }>({
+  lang: "en",
+  setLang: () => {},
+  t: (k) => COPY.en[k],
+});
+
+export function LangProvider({ children }: { children: React.ReactNode }) {
+  const [lang, setLang] = useState<Lang>("en");
+  const t = (k: CopyKey) => COPY[lang][k];
+  return <LangContext.Provider value={{ lang, setLang, t }}>{children}</LangContext.Provider>;
+}
+
+export const useLang = () => useContext(LangContext);
