@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.67",
+    "@ai-sdk/react": "^3.0.198",
     "@neondatabase/serverless": "^1.1.0",
     "ai": "^6.0.196",
     "drizzle-orm": "^0.45.2",
