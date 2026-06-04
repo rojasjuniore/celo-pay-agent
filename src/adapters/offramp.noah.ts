@@ -81,7 +81,7 @@ export class NoahOffRampAdapter {
    *
    * UNCONFIRMED: los nombres exactos de los campos del body (CryptoCurrency,
    * FiatCurrency, FormSessionID, etc.) provienen de la doc parcial de Noah; hay
-   * que ajustarlos contra el OpenAPI real / el sandbox antes de producción.
+   * que confirmarlos contra el OpenAPI/contrato real de Noah (npm run check-noah).
    */
   async payout(input: NoahPayoutInput): Promise<NoahPayoutResult> {
     const fiatCurrency = currencyForCountry(input.country);
