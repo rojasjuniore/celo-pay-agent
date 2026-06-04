@@ -22,8 +22,13 @@ const EnvSchema = z.object({
   THIRDWEB_CLIENT_ID: z.string().optional(),
   PINATA_JWT: z.string().optional(),
   DATABASE_URL: z.string().optional(),
-  LIFI_INTEGRATOR: z.string().optional(),
   SELF_APP_ID: z.string().optional(),
+  TREASURY_ADDRESS: z.string().optional(),
+  REVENUE_FEE_BPS: z.string().optional(),
+  MENTO_BROKER_ADDRESS: z.string().optional(),
+  OFFRAMP_API_KEY: z.string().optional(),
+  CRON_SECRET: z.string().optional(),
+  AGENT_PUBLIC_URL: z.string().optional(),
 });
 
 export type Env = z.infer<typeof EnvSchema>;
