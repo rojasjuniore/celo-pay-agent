@@ -11,18 +11,18 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
+    "db:migrate": "tsx scripts/migrate.ts",
     "register-agent": "tsx scripts/register-agent.ts",
     "check-noah": "tsx scripts/check-noah-celo.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.67",
     "@ai-sdk/react": "^3.0.198",
-    "@neondatabase/serverless": "^1.1.0",
     "ai": "^6.0.196",
     "drizzle-orm": "^0.45.2",
     "jose": "^6.2.3",
     "next": "16.2.7",
+    "pg": "^8.21.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "thirdweb": "^5.120.0",
@@ -35,6 +35,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/pg": "^8.20.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitest/coverage-v8": "^4.1.8",
