@@ -1,41 +1,47 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "motion/react";
-import { fadeUp, stagger } from "./motion";
 import { useLang } from "./i18n";
 
 /**
- * Hero oscuro full-bleed (firma Coinbase) con demo animada del chat.
- * Copy bilingüe (toggle EN/ES). El mockup se revela en secuencia.
+ * Hero oscuro full-bleed (firma Coinbase) con demo del chat. Visible por
+ * defecto (sin opacidad 0 inicial que pueda atascarse en prod); la entrada es
+ * una animación CSS a prueba de fallos. Copy bilingüe.
  */
 export function Hero() {
   const { t } = useLang();
   return (
     <section
-      className="px-6 md:px-12 py-20 md:py-28 overflow-hidden"
+      className="relative px-6 md:px-12 py-20 md:py-28 overflow-hidden"
       style={{ background: "var(--cb-surface-dark)", color: "var(--cb-on-dark)" }}
     >
-      <div className="mx-auto max-w-[1200px] grid md:grid-cols-2 gap-12 items-center">
-        <motion.div initial="hidden" animate="show" variants={stagger}>
-          <motion.span
-            variants={fadeUp}
+      {/* Glow de marca: degradado sutil Celo + azul */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-32 -right-32 h-[28rem] w-[28rem] rounded-full opacity-20 blur-3xl"
+        style={{ background: "radial-gradient(circle, #fcff52 0%, transparent 70%)" }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -bottom-40 -left-32 h-[28rem] w-[28rem] rounded-full opacity-25 blur-3xl"
+        style={{ background: "radial-gradient(circle, #0052ff 0%, transparent 70%)" }}
+      />
+
+      <div className="relative mx-auto max-w-[1200px] grid md:grid-cols-2 gap-12 items-center">
+        <div className="remi-fade-up">
+          <span
             className="inline-block text-xs font-semibold uppercase tracking-wide px-3 py-1 mb-6"
             style={{ background: "var(--cb-surface-dark-elevated)", color: "var(--cb-on-dark-soft)", borderRadius: "var(--cb-radius-pill)" }}
           >
             {t("badge")}
-          </motion.span>
-          <motion.h1
-            variants={fadeUp}
-            className="font-normal"
-            style={{ fontSize: "clamp(44px, 7vw, 84px)", lineHeight: 1, letterSpacing: "-2px" }}
-          >
+          </span>
+          <h1 className="font-normal" style={{ fontSize: "clamp(44px, 7vw, 84px)", lineHeight: 1, letterSpacing: "-2px" }}>
             {t("heroTitle1")}<br />{t("heroTitle2")}
-          </motion.h1>
-          <motion.p variants={fadeUp} className="mt-6 text-lg max-w-md" style={{ color: "var(--cb-on-dark-soft)", lineHeight: 1.5 }}>
+          </h1>
+          <p className="mt-6 text-lg max-w-md" style={{ color: "var(--cb-on-dark-soft)", lineHeight: 1.5 }}>
             {t("heroSub")}
-          </motion.p>
-          <motion.div variants={fadeUp} className="mt-8 flex flex-wrap gap-3">
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
             <Link
               href="/app"
               className="inline-flex items-center h-14 px-8 text-base font-semibold transition-transform hover:scale-[1.03]"
@@ -52,8 +58,14 @@ export function Hero() {
             >
               {t("viewCode")}
             </a>
-          </motion.div>
-        </motion.div>
+          </div>
+          {/* Stats de confianza */}
+          <div className="mt-10 flex gap-8">
+            <Stat value="0.5%" label={t("statFee")} />
+            <Stat value="$0" label={t("statGas")} />
+            <Stat value="120+" label={t("statCurrencies")} />
+          </div>
+        </div>
 
         <ChatDemo />
       </div>
@@ -61,49 +73,43 @@ export function Hero() {
   );
 }
 
-/** Mockup del chat que se revela en secuencia (efecto "wow"). */
+function Stat({ value, label }: { value: string; label: string }) {
+  return (
+    <div>
+      <p className="text-2xl font-medium font-mono">{value}</p>
+      <p className="text-xs mt-1" style={{ color: "var(--cb-on-dark-soft)" }}>{label}</p>
+    </div>
+  );
+}
+
+/** Mockup del chat (visible por defecto, con glow). */
 function ChatDemo() {
   const { t } = useLang();
   const rows = [
-    { label: t("rowSend"), value: "$50.00 USDT", delay: 1.0 },
-    { label: t("rowFee"), value: "$0.25 (0.5%)", delay: 1.2, soft: true },
-    { label: t("rowReceive"), value: "~$200,000 COP", delay: 1.4 },
-    { label: t("rowGas"), value: "$0", delay: 1.6, up: true },
-    { label: t("rowNetwork"), value: "100% Celo", delay: 1.8 },
+    { label: t("rowSend"), value: "$50.00 USDT" },
+    { label: t("rowFee"), value: "$0.25 (0.5%)", soft: true },
+    { label: t("rowReceive"), value: "~$200,000 COP" },
+    { label: t("rowGas"), value: "$0", up: true },
+    { label: t("rowNetwork"), value: "100% Celo" },
   ];
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30, rotate: -1 }}
-      animate={{ opacity: 1, y: 0, rotate: 0 }}
-      transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-      className="p-8"
-      style={{ background: "var(--cb-surface-dark-elevated)", borderRadius: "var(--cb-radius-xl)" }}
+    <div
+      className="remi-fade-up p-8 shadow-2xl"
+      style={{ background: "var(--cb-surface-dark-elevated)", borderRadius: "var(--cb-radius-xl)", animationDelay: "0.15s" }}
     >
       <p className="text-sm mb-3" style={{ color: "var(--cb-on-dark-soft)" }}>{t("you")}</p>
-      <motion.div
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.4, duration: 0.4 }}
-        className="px-4 py-3 mb-5 text-sm ml-auto max-w-[90%]"
-        style={{ background: "var(--cb-primary)", borderRadius: 16 }}
-      >
+      <div className="px-4 py-3 mb-5 text-sm ml-auto max-w-[90%]" style={{ background: "var(--cb-primary)", borderRadius: 16 }}>
         {t("chatMsg")}
-      </motion.div>
+      </div>
       <p className="text-sm mb-3" style={{ color: "var(--cb-on-dark-soft)" }}>Remi</p>
       <div className="px-4 py-4 text-sm space-y-2" style={{ background: "#000", borderRadius: 16 }}>
         {rows.map((r) => (
-          <motion.div
-            key={r.label}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: r.delay, duration: 0.3 }}
-            className="flex justify-between font-mono"
-          >
+          <div key={r.label} className="flex justify-between font-mono">
             <span style={{ color: "var(--cb-on-dark-soft)" }}>{r.label}</span>
             <span style={{ color: r.up ? "var(--cb-up)" : r.soft ? "var(--cb-on-dark-soft)" : "var(--cb-on-dark)" }}>{r.value}</span>
-          </motion.div>
+          </div>
         ))}
       </div>
-    </motion.div>
+    </div>
   );
 }
