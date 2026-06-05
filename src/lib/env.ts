@@ -34,6 +34,7 @@ const EnvSchema = z.object({
   NOAH_SIGNING_PRIVATE_KEY: z.string().optional(),
   NOAH_API_BASE: z.string().optional(),
   CRON_SECRET: z.string().optional(),
+  SESSION_SECRET: z.string().optional(),
   AGENT_PUBLIC_URL: z.string().optional(),
 });
 

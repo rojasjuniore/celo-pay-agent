@@ -12,6 +12,7 @@ import { ConfirmationCard } from "@/components/chat/ConfirmationCard";
 import { SummaryCard, CategoryCard, TransactionsCard } from "@/components/chat/SummaryCard";
 import { PaymentGate } from "@/components/chat/PaymentGate";
 import { usePaymentGate } from "@/components/auth/usePaymentGate";
+import { useSessionLogin } from "@/components/auth/useSessionLogin";
 import { BalanceCard, DepositCard, ActivityList } from "@/components/dashboard/DashboardCards";
 import type { PaymentConfirmation } from "@/components/chat/types";
 
@@ -27,16 +28,11 @@ function nowMs(): number {
  */
 export default function AppPage() {
   const account = useActiveAccount();
-  // Transport que adjunta la wallet del usuario al body del chat, para que las
-  // tools contables (summary, categorías, historial) lean SUS datos reales.
-  const transport = useMemo(
-    () =>
-      new DefaultChatTransport({
-        api: "/api/chat",
-        body: { wallet: account?.address ?? null },
-      }),
-    [account?.address],
-  );
+  // Inicia sesión firmada al conectar la wallet: la identidad para las consultas
+  // financieras se establece server-side (cookie), no por el body → sin IDOR.
+  useSessionLogin(account);
+  // Transport del chat. La identidad va por la cookie de sesión, no en el body.
+  const transport = useMemo(() => new DefaultChatTransport({ api: "/api/chat" }), []);
   const { messages, sendMessage, status } = useChat({ transport });
   const [input, setInput] = useState("");
   const gate = usePaymentGate();

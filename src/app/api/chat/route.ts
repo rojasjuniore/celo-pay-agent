@@ -11,6 +11,7 @@ import { getFeeBps } from "@/modules/revenue/fee";
 import { getPaymentRecords } from "@/lib/db/reports";
 import { spendingSummary, byCategory, byRecipient, type PaymentRecord } from "@/modules/reporting/summary";
 import { CATEGORY_LABELS } from "@/modules/reporting/category";
+import { walletFromSession } from "@/lib/session";
 
 /**
  * Endpoint de chat: streaming bilingüe vía OpenRouter → Claude Sonnet 4.6.
@@ -26,13 +27,16 @@ function periodRange(period: string): { fromMs: number; toMs: number } {
   return { fromMs: toMs - days * 24 * 60 * 60 * 1000, toMs };
 }
 
-const isWallet = (w: unknown): w is `0x${string}` =>
-  typeof w === "string" && /^0x[0-9a-fA-F]{40}$/.test(w);
+function readCookie(request: Request, name: string): string | undefined {
+  const cookie = request.headers.get("cookie") ?? "";
+  return cookie.split(";").map((c) => c.trim()).find((c) => c.startsWith(`${name}=`))?.slice(name.length + 1);
+}
 
 export async function POST(request: Request): Promise<Response> {
   const body = await request.json();
   const messages = await validateUIMessages({ messages: body.messages });
-  const wallet: `0x${string}` | null = isWallet(body.wallet) ? body.wallet : null;
+  // Identidad SOLO de la sesión verificada (cookie), nunca del body → sin IDOR.
+  const wallet = await walletFromSession(readCookie(request, "remi_session"));
 
   const provider = createOpenAI({
     baseURL: "https://openrouter.ai/api/v1",
