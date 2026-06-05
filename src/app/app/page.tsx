@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { motion } from "motion/react";
 import { useChat } from "@ai-sdk/react";
 import { useActiveAccount } from "thirdweb/react";
 import { buildAuthMessage } from "@/modules/payments/auth-message";
@@ -77,43 +79,70 @@ export default function AppPage() {
   };
 
   return (
-    <div className="flex h-screen" style={{ background: "var(--color-surface-muted)" }}>
+    <div className="flex h-screen" style={{ background: "var(--cb-surface-soft)" }}>
       {/* Sidebar */}
       <nav
-        className="w-60 shrink-0 border-r p-4 hidden md:flex flex-col gap-2"
-        style={{ borderColor: "var(--color-border)", background: "var(--color-surface)" }}
+        className="w-64 shrink-0 border-r p-4 hidden md:flex flex-col gap-3"
+        style={{ borderColor: "var(--cb-hairline)", background: "var(--cb-canvas)" }}
       >
+        <Link href="/" className="flex items-center gap-2 text-lg font-medium px-2 py-1" style={{ color: "var(--cb-ink)" }}>
+          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold" style={{ background: "var(--cb-celo)", color: "#000" }}>R</span>
+          Remi
+        </Link>
         <button
-          className="h-10 rounded-[8px] text-sm font-medium border"
-          style={{ borderColor: "var(--color-border)", color: "var(--color-primary)" }}
+          onClick={() => window.location.reload()}
+          className="h-10 rounded-full text-sm font-semibold transition-transform hover:scale-[1.02]"
+          style={{ background: "var(--cb-surface-strong)", color: "var(--cb-ink)" }}
         >
-          + Nueva conversación
+          New chat
         </button>
-        <p className="text-xs mt-4" style={{ color: "var(--color-neutral)" }}>
-          Historial
-        </p>
+        <div className="mt-2 px-2">
+          <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: "var(--cb-muted)" }}>Try</p>
+          {["Send $50 to Colombia", "Recurring payment", "How does Remi work?"].map((s) => (
+            <button key={s} onClick={() => submit(s)} className="block w-full text-left text-sm py-1.5 px-2 rounded-lg transition-colors hover:bg-black/5" style={{ color: "var(--cb-body)" }}>
+              {s}
+            </button>
+          ))}
+        </div>
+        <div className="mt-auto px-2 text-xs" style={{ color: "var(--cb-muted)" }}>
+          Gasless on Celo · settled anywhere
+        </div>
       </nav>
 
       {/* Chat */}
-      <main className="flex-1 flex flex-col">
+      <main className="flex-1 flex flex-col" style={{ background: "var(--cb-canvas)" }}>
+        {/* Header */}
+        <div className="h-14 flex items-center px-6 border-b" style={{ borderColor: "var(--cb-hairline)" }}>
+          <div className="flex items-center gap-2">
+            <span className="inline-flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold" style={{ background: "var(--cb-celo)", color: "#000" }}>R</span>
+            <div>
+              <p className="text-sm font-semibold leading-none" style={{ color: "var(--cb-ink)" }}>Remi</p>
+              <p className="text-xs leading-none mt-0.5" style={{ color: "var(--cb-up)" }}>● online</p>
+            </div>
+          </div>
+        </div>
+
         <div className="flex-1 overflow-y-auto p-6">
           <div className="mx-auto max-w-2xl space-y-4">
             {messages.length === 0 ? (
               <WelcomeState onPick={submit} />
             ) : (
               messages.map((m) => (
-                <div
+                <motion.div
                   key={m.id}
-                  className={m.role === "user" ? "flex justify-end" : "flex justify-start"}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className={m.role === "user" ? "flex justify-end" : "flex justify-start items-start gap-2"}
                 >
+                  {m.role !== "user" && (
+                    <span className="mt-1 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold" style={{ background: "var(--cb-celo)", color: "#000" }}>R</span>
+                  )}
                   <div
-                    className="rounded-[12px] px-4 py-2 max-w-[80%] text-sm"
+                    className="rounded-2xl px-4 py-2.5 max-w-[80%] text-sm leading-relaxed"
                     style={{
-                      background:
-                        m.role === "user" ? "var(--color-primary)" : "var(--color-surface)",
-                      color:
-                        m.role === "user" ? "var(--color-on-primary)" : "var(--color-primary)",
-                      border: m.role === "user" ? "none" : "1px solid var(--color-border)",
+                      background: m.role === "user" ? "var(--cb-primary)" : "var(--cb-surface-strong)",
+                      color: m.role === "user" ? "#fff" : "var(--cb-ink)",
                     }}
                   >
                     {m.parts.map((p, i) => {
@@ -140,8 +169,6 @@ export default function AppPage() {
                             key={i}
                             data={data}
                             onConfirm={() => {
-                              // Gate just-in-time: si falta login/KYC, lo pide
-                              // ahora (PaymentGate); si ya está, ejecuta de verdad.
                               if (gate.ready) void execute(data);
                               else setPending(data);
                             }}
@@ -152,40 +179,52 @@ export default function AppPage() {
                       return null;
                     })}
                   </div>
-                </div>
+                </motion.div>
               ))
             )}
             {status === "streaming" && (
-              <p className="text-xs" style={{ color: "var(--color-neutral)" }}>
-                PagaBot está escribiendo…
-              </p>
+              <div className="flex items-center gap-2">
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold" style={{ background: "var(--cb-celo)", color: "#000" }}>R</span>
+                <div className="flex gap-1 px-3 py-2 rounded-2xl" style={{ background: "var(--cb-surface-strong)" }}>
+                  {[0, 1, 2].map((i) => (
+                    <motion.span
+                      key={i}
+                      className="h-1.5 w-1.5 rounded-full"
+                      style={{ background: "var(--cb-muted)" }}
+                      animate={{ opacity: [0.3, 1, 0.3] }}
+                      transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
+                    />
+                  ))}
+                </div>
+              </div>
             )}
           </div>
         </div>
 
         {/* Composer */}
-        <div className="border-t p-4" style={{ borderColor: "var(--color-border)" }}>
+        <div className="border-t p-4" style={{ borderColor: "var(--cb-hairline)" }}>
           <form
             onSubmit={(e) => {
               e.preventDefault();
               submit(input);
             }}
-            className="mx-auto max-w-2xl flex gap-2"
+            className="mx-auto max-w-2xl flex gap-2 items-center rounded-full border px-2 py-1"
+            style={{ borderColor: "var(--cb-hairline)", background: "var(--cb-canvas)" }}
           >
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Escribe… (ES/EN)"
-              className="flex-1 h-10 px-3 rounded-[8px] border text-sm"
-              style={{ borderColor: "var(--color-border)", background: "var(--color-surface)" }}
+              placeholder="Message Remi… (EN / ES)"
+              className="flex-1 h-10 px-3 bg-transparent text-sm outline-none"
+              style={{ color: "var(--cb-ink)" }}
             />
             <button
               type="submit"
-              disabled={status === "streaming"}
-              className="h-10 px-5 rounded-[8px] text-sm font-medium disabled:opacity-50"
-              style={{ background: "var(--color-primary)", color: "var(--color-on-primary)" }}
+              disabled={status === "streaming" || !input.trim()}
+              className="h-9 px-5 rounded-full text-sm font-semibold transition-transform hover:scale-[1.03] disabled:opacity-40 disabled:hover:scale-100"
+              style={{ background: "var(--cb-primary)", color: "#fff" }}
             >
-              Enviar
+              Send
             </button>
           </form>
         </div>
