@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import confetti from "canvas-confetti";
@@ -44,14 +45,18 @@ export default function Onboarding() {
 
   return (
     <main className="min-h-screen flex flex-col" style={{ background: "var(--cb-canvas)" }}>
-      <nav className="h-16 flex items-center px-6 md:px-12 border-b" style={{ borderColor: "var(--cb-hairline)" }}>
-        <span className="flex items-center gap-2 text-xl font-medium" style={{ color: "var(--cb-ink)" }}>
-          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full text-sm" style={{ background: "var(--cb-celo)", color: "#000" }}>R</span>
+      <nav className="h-16 flex items-center justify-between px-6 md:px-12 border-b" style={{ borderColor: "var(--cb-hairline)" }}>
+        <Link href="/" className="flex items-center gap-2 text-xl font-medium" style={{ color: "var(--cb-ink)" }}>
+          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold" style={{ background: "var(--cb-celo)", color: "#000" }}>R</span>
           Remi
-        </span>
+        </Link>
+        <Link href="/app" className="text-sm font-medium" style={{ color: "var(--cb-primary)" }}>Open chat</Link>
       </nav>
 
-      <div className="flex-1 flex items-center justify-center px-6 py-12">
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12">
+        <p className="mb-6 text-xs px-3 py-1 rounded-full" style={{ background: "var(--cb-surface-strong)", color: "var(--cb-muted)" }}>
+          KYC demo · in the live flow this happens inside the chat, only when you pay
+        </p>
         <div className="w-full max-w-lg">
           <Stepper current={state.step} />
 
