@@ -29,6 +29,8 @@ export const paymentIntents = pgTable("payment_intents", {
   recipient: varchar("recipient", { length: 128 }).notNull(),
   country: varchar("country", { length: 2 }).notNull(),
   schedule: varchar("schedule", { length: 16 }).notNull(),
+  /** Categoría contable (remittance|subscription|bill|family|business|other). */
+  category: varchar("category", { length: 16 }),
   status: intentStatus("status").notNull().default("pending"),
   nextRunAt: timestamp("next_run_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

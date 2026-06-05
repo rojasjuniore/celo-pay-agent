@@ -4,6 +4,7 @@ import { PaymentIntentSchema } from "@/modules/agent/payment-intent";
 import { executePayment } from "@/modules/payments/executor";
 import { buildAuthMessage, isFresh, type SignedExecution } from "@/modules/payments/auth-message";
 import { assertSpendAllowed, SpendLimitError } from "@/modules/payments/spend-limit";
+import { deriveCategory } from "@/modules/reporting/category";
 import { ViemWalletAdapter } from "@/adapters/wallet.viem";
 import { TreasuryRevenueAdapter } from "@/adapters/revenue.treasury";
 import { NoahRampAdapter } from "@/adapters/ramp.noah";
@@ -92,6 +93,7 @@ export async function POST(request: Request): Promise<Response> {
     recipient: intent.recipient,
     country: intent.country,
     schedule: intent.schedule,
+    category: deriveCategory(intent),
     status: "executing",
   });
 

@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
 import { useChat } from "@ai-sdk/react";
+import { DefaultChatTransport } from "ai";
 import { useActiveAccount } from "thirdweb/react";
 import { buildAuthMessage } from "@/modules/payments/auth-message";
 import { WelcomeState } from "@/components/chat/WelcomeState";
 import { ConfirmationCard } from "@/components/chat/ConfirmationCard";
+import { SummaryCard, CategoryCard, TransactionsCard } from "@/components/chat/SummaryCard";
 import { PaymentGate } from "@/components/chat/PaymentGate";
 import { usePaymentGate } from "@/components/auth/usePaymentGate";
 import { BalanceCard, DepositCard, ActivityList } from "@/components/dashboard/DashboardCards";
@@ -24,9 +26,19 @@ function nowMs(): number {
  * usuario confirma un pago — el flujo que mejor convierte (investigación).
  */
 export default function AppPage() {
-  const { messages, sendMessage, status } = useChat();
-  const [input, setInput] = useState("");
   const account = useActiveAccount();
+  // Transport que adjunta la wallet del usuario al body del chat, para que las
+  // tools contables (summary, categorías, historial) lean SUS datos reales.
+  const transport = useMemo(
+    () =>
+      new DefaultChatTransport({
+        api: "/api/chat",
+        body: { wallet: account?.address ?? null },
+      }),
+    [account?.address],
+  );
+  const { messages, sendMessage, status } = useChat({ transport });
+  const [input, setInput] = useState("");
   const gate = usePaymentGate();
   // Pago pendiente de ejecutar tras pasar el gate (login + KYC).
   const [pending, setPending] = useState<PaymentConfirmation | null>(null);
@@ -175,6 +187,19 @@ export default function AppPage() {
                             onEdit={() => submit("I want to change the payment")}
                           />
                         );
+                      }
+                      // Tools contables → tarjetas con gráficas (datos reales).
+                      if (p.type === "tool-getSpendingSummary" && p.state === "output-available") {
+                        const o = p.output as Record<string, unknown>;
+                        if (!o.error) return <SummaryCard key={i} data={o as never} />;
+                      }
+                      if (p.type === "tool-getCategoryBreakdown" && p.state === "output-available") {
+                        const o = p.output as Record<string, unknown>;
+                        if (!o.error) return <CategoryCard key={i} data={o as never} />;
+                      }
+                      if (p.type === "tool-listTransactions" && p.state === "output-available") {
+                        const o = p.output as Record<string, unknown>;
+                        if (!o.error) return <TransactionsCard key={i} data={o as never} />;
                       }
                       return null;
                     })}
