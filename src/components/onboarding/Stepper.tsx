@@ -24,11 +24,13 @@ export function Stepper({ current }: { current: OnboardingStep }) {
               <motion.div
                 initial={false}
                 animate={{
-                  backgroundColor: done || active ? "var(--cb-primary)" : "var(--cb-surface-strong)",
+                  // Acento Celo amarillo en pasos hechos/activos.
+                  backgroundColor: done || active ? "#fcff52" : "var(--cb-surface-strong)",
                   scale: active ? 1.1 : 1,
                 }}
                 className="h-8 w-8 rounded-full flex items-center justify-center text-sm font-semibold"
-                style={{ color: done || active ? "#fff" : "var(--cb-muted)" }}
+                // Texto negro sobre amarillo (contraste); gris en pasos pendientes.
+                style={{ color: done || active ? "#000" : "var(--cb-muted)" }}
               >
                 {done ? "✓" : i + 1}
               </motion.div>
@@ -42,7 +44,7 @@ export function Stepper({ current }: { current: OnboardingStep }) {
       <div className="h-1 rounded-full overflow-hidden" style={{ background: "var(--cb-surface-strong)" }}>
         <motion.div
           className="h-full"
-          style={{ background: "var(--cb-primary)" }}
+          style={{ background: "var(--cb-celo)" }}
           initial={false}
           animate={{ width: `${(idx / (ONBOARDING_STEPS.length - 1)) * 100}%` }}
           transition={{ duration: 0.4, ease: "easeOut" }}

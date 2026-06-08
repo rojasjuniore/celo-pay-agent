@@ -69,7 +69,7 @@ export default function Onboarding() {
               transition={{ duration: 0.3 }}
             >
               {state.step === "account" && (
-                <StepCard title="Create your account" subtitle="Just your email to start.">
+                <StepCard title="Send money home in seconds" subtitle="Just your email — we create a gasless wallet for you. No seed phrase, no gas.">
                   <input
                     type="email"
                     placeholder="you@email.com"
@@ -83,7 +83,7 @@ export default function Onboarding() {
               )}
 
               {state.step === "profile" && (
-                <StepCard title="Tell us about you" subtitle="Required to send money internationally.">
+                <StepCard title="Where are we sending?" subtitle="Your details settle the payment in local currency — pesos, soles, reais.">
                   <input
                     placeholder="Full name"
                     value={state.fullName ?? ""}
@@ -104,30 +104,49 @@ export default function Onboarding() {
               )}
 
               {state.step === "verify" && (
-                <SelfStep
-                  userId={userId}
-                  endpoint={selfEndpoint}
-                  scope={selfScope}
-                  onVerified={() => {
-                    set({ selfVerified: true });
-                    setTimeout(advance, 400);
-                  }}
-                />
+                <div className="flex flex-col gap-5">
+                  <SelfStep
+                    userId={userId}
+                    endpoint={selfEndpoint}
+                    scope={selfScope}
+                    onVerified={() => {
+                      set({ selfVerified: true });
+                      setTimeout(advance, 400);
+                    }}
+                  />
+                  {/* Bullets de confianza: el QR no se ve solo en el video. */}
+                  <ul className="mx-auto max-w-sm flex flex-col gap-2 text-sm" style={{ color: "var(--cb-body)" }}>
+                    {[
+                      "Zero-knowledge: your passport never leaves your phone",
+                      "Sybil-resistant proof you're a real human",
+                      "Meets KYC to move money — required by law",
+                    ].map((b) => (
+                      <li key={b} className="flex items-start gap-2">
+                        <span style={{ color: "var(--cb-up)" }}>✓</span>
+                        <span>{b}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )}
 
               {state.step === "done" && (
                 <div className="text-center">
-                  <div
-                    className="mx-auto mb-5 h-14 w-14 rounded-full flex items-center justify-center text-2xl"
+                  <motion.div
+                    initial={{ scale: 0, rotate: -45 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ type: "spring", stiffness: 260, damping: 18 }}
+                    className="mx-auto mb-5 h-16 w-16 rounded-full flex items-center justify-center text-3xl"
                     style={{ background: "var(--cb-up)", color: "#fff" }}
                   >
                     ✓
-                  </div>
-                  <h2 className="text-3xl font-medium mb-2" style={{ color: "var(--cb-ink)" }}>You&apos;re in.</h2>
+                  </motion.div>
+                  <h2 className="text-3xl font-medium mb-2" style={{ color: "var(--cb-ink)" }}>You&apos;re verified.</h2>
                   <p className="mb-8" style={{ color: "var(--cb-body)" }}>
-                    Verified with a zero-knowledge proof. Ready to send money by talking.
+                    No bank, no branch, no waiting. Just talk to Remi and money moves —
+                    gasless on Celo, settled in local currency.
                   </p>
-                  <PrimaryButton onClick={() => router.push("/app")}>Open Remi</PrimaryButton>
+                  <PrimaryButton onClick={() => router.push("/app")}>Send your first payment</PrimaryButton>
                 </div>
               )}
             </motion.div>
@@ -153,8 +172,10 @@ function PrimaryButton({ children, onClick, disabled }: { children: React.ReactN
     <button
       onClick={onClick}
       disabled={disabled}
+      // Acento Celo amarillo. Texto NEGRO obligatorio: blanco sobre #FCFF52 es
+      // ilegible (falla contraste WCAG) — el amarillo es muy claro.
       className="h-12 px-6 text-base font-semibold transition-transform hover:scale-[1.02] disabled:opacity-40 disabled:hover:scale-100"
-      style={{ background: "var(--cb-primary)", color: "#fff", borderRadius: 100 }}
+      style={{ background: "var(--cb-celo)", color: "#000", borderRadius: 100 }}
     >
       {children}
     </button>
