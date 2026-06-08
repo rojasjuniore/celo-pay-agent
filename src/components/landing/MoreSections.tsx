@@ -4,6 +4,48 @@ import { motion } from "motion/react";
 import { fadeUp, stagger } from "./motion";
 import { useLang } from "./i18n";
 
+/** Banda clara: qué le puedes pedir a Remi (capacidades con ejemplos reales). */
+export function Capabilities() {
+  const { t } = useLang();
+  const caps = [
+    { title: t("cap1Title"), ex: t("cap1Ex"), d: t("cap1") },
+    { title: t("cap2Title"), ex: t("cap2Ex"), d: t("cap2") },
+    { title: t("cap3Title"), ex: t("cap3Ex"), d: t("cap3") },
+    { title: t("cap4Title"), ex: t("cap4Ex"), d: t("cap4") },
+  ];
+  return (
+    <section className="px-6 md:px-12 py-20 md:py-24" style={{ background: "var(--cb-canvas)", color: "var(--cb-ink)" }}>
+      <div className="mx-auto max-w-[1200px]">
+        <h2 className="font-normal mb-3" style={{ fontSize: "clamp(32px, 4vw, 52px)", lineHeight: 1, letterSpacing: "-1.3px" }}>
+          {t("capTitle")}
+        </h2>
+        <p className="mb-12 text-lg" style={{ color: "var(--cb-body)" }}>{t("capSub")}</p>
+        <motion.div
+          className="grid sm:grid-cols-2 gap-6"
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-80px" }}
+          variants={stagger}
+        >
+          {caps.map((c) => (
+            <motion.div key={c.title} variants={fadeUp} className="p-8 border" style={{ borderColor: "var(--cb-hairline)", borderRadius: "var(--cb-radius-xl)" }}>
+              <h3 className="text-lg font-semibold mb-3">{c.title}</h3>
+              {/* Frase de ejemplo en estilo "burbuja de chat" con acento Celo */}
+              <p
+                className="inline-block text-sm font-mono px-3 py-1.5 mb-3"
+                style={{ background: "var(--cb-celo)", color: "#000", borderRadius: 10 }}
+              >
+                {c.ex}
+              </p>
+              <p style={{ color: "var(--cb-body)", lineHeight: 1.5 }}>{c.d}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
 /** Banda oscura: beneficios del off-ramp Noah (global). */
 export function WhyNoah() {
   const { t } = useLang();
