@@ -13,6 +13,7 @@ import { SummaryCard, CategoryCard, TransactionsCard } from "@/components/chat/S
 import { PaymentGate } from "@/components/chat/PaymentGate";
 import { usePaymentGate } from "@/components/auth/usePaymentGate";
 import { useSessionLogin } from "@/components/auth/useSessionLogin";
+import { LoginButton } from "@/components/auth/LoginButton";
 import { BalanceCard, DepositCard, ActivityList } from "@/components/dashboard/DashboardCards";
 import type { PaymentConfirmation } from "@/components/chat/types";
 
@@ -120,7 +121,7 @@ export default function AppPage() {
       {/* Chat */}
       <main className="flex-1 flex flex-col" style={{ background: "var(--cb-canvas)" }}>
         {/* Header */}
-        <div className="h-14 flex items-center px-6 border-b" style={{ borderColor: "var(--cb-hairline)" }}>
+        <div className="h-14 flex items-center justify-between px-6 border-b" style={{ borderColor: "var(--cb-hairline)" }}>
           <div className="flex items-center gap-2">
             <span className="inline-flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold" style={{ background: "var(--cb-celo)", color: "#000" }}>R</span>
             <div>
@@ -128,6 +129,9 @@ export default function AppPage() {
               <p className="text-xs leading-none mt-0.5" style={{ color: "var(--cb-up)" }}>● online</p>
             </div>
           </div>
+          {/* Conectar wallet siempre visible: en guest muestra "Connect"; conectado,
+              thirdweb muestra la dirección/avatar. La sesión firmada se dispara sola. */}
+          <LoginButton label="Connect" />
         </div>
 
         <div className="flex-1 overflow-y-auto p-6">
